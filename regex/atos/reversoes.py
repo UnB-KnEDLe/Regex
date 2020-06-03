@@ -1,3 +1,5 @@
+from base import Regex
+
 class Revertions(Regex):
 
     def __init__(self, text):

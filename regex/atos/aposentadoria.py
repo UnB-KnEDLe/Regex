@@ -1,3 +1,5 @@
+from base import Regex
+
 class Retirements(Regex):
     
     def __init__(self, text):
