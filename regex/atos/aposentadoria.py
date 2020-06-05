@@ -1,4 +1,4 @@
-from base import Regex
+from atos.base import Regex
 
 class Retirements(Regex):
     
@@ -18,38 +18,36 @@ class Retirements(Regex):
                       "orgao": "Lotacao: ([\s\S]*?)[.]",
                       "vigencia": "",
                       "siape": "[S|s][I|i][A|a][P|p][E|e]\s[N|n]?[o|O]?\s([\s\S]*?)[,| | .]"}
-                      
-        self._raw_acts = self._extract_instances()   
-        self._acts = self._acts_props()
-        self.data_frame = self._build_dataframe()
         
-    
-    def _act_props(self, sei, act_raw):
+        self._raw_acts = self._extract_instances(text)   
+        self._acts = self._acts_props()
+        data_frame = self._build_dataframe()
+
+    def _act_props(self, sei):
         act = {}
         act["tipo_ato"] = "Aposentadoria"
         act["sei"] = sei
         for key in self.rules:
             try:
-                act[key], = self.find_in_act(self.rules[key], act_raw)
+                act[key], = self.find_in_act(self.rules[key], self._raw_acts)
             except:
                 act[key] = "nan"
 
         return act
     
-    def _acts_props(self):
+    def _acts_props(self, raw_acts):
         acts = []
-        for sei, raw in self._raw_acts.items():
+        for sei, raw in raw_acts.items():
             act = self._act_props(sei, raw)
             acts.append(act)
         return acts        
         
-    
-    def _extract_instances(self):
+    def _extract_instances(self, text):
         start = "(APOSENTAR|CONCEDER\sAPOSENTADORIA),?\s?"
         body = "([\s\S]*?)"
         end = "[P|p]rocesso:?\s[s|S]?[e|E]?[i|I]?\s?[n|N]?[o|O]?\s?([\s\S]*?)[.]\s"
         rule = start + body + end
-        found = self.find_all(rule)
+        found = self.find_all(rule, text)
         results = {}
         for instance in found:
             start, body, sei = instance
