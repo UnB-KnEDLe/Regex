@@ -1,5 +1,6 @@
-data/dodfs_txt_barra_n
-data/dodfs_txt_espaco
+data/dodfs_txt_barra_n/
+data/dodfs_txt_espaco/
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
