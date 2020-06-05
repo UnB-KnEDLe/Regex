@@ -23,7 +23,6 @@ class Retirements(Regex):
         self._acts = self._acts_props()
         self.data_frame = self._build_dataframe()
         
-        
     
     def _act_props(self, sei, act_raw):
         act = {}
