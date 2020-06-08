@@ -3,7 +3,7 @@ import utils
 import pandas as pd
 
 
-class Regex:
+class Atos:
     
     def __init__(self, file):
         fp = open(file, "r")
@@ -20,12 +20,15 @@ class Regex:
 
         self._raw_acts = self._extract_instances()
         self._acts = self._acts_props() 
-        self.data_frame = self._build_dataframe()
+        self._data_frame = self._build_dataframe()
+
+    @property
+    def data_frame(self):
+        return self._data_frame
 
     @property
     def name(self):
         return self._name
-
 
     @property
     def acts_str(self):

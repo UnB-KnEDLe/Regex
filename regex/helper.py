@@ -28,11 +28,10 @@ def print_dataframe(df):
     style_df = (df.style.set_properties(**{'text-align': 'left'})
                                         .set_table_styles([ dict(selector='th',
                                                                  props=[('text-align','left')])])
-                   )
+                )
     return style_df
 
 def get_txts(path):
-    print(path)
     txt_files = []
     for root, _, files in os.walk(path):
         for file in files:

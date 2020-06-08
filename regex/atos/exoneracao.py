@@ -1,6 +1,6 @@
-from atos.base import Regex
+from atos.base import Atos
 
-class Exoneracao(Regex):
+class Exoneracao(Atos):
     
     def __init__(self,text):
         super().__init__(text)

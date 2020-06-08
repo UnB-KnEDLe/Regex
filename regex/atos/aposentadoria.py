@@ -1,6 +1,6 @@
-from atos.base import Regex
+from atos.base import Atos
 
-class Retirements(Regex):
+class Retirements(Atos):
     
     def __init__(self, file):
         super().__init__(file)

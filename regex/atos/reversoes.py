@@ -1,7 +1,7 @@
 import re
-from atos.base import Regex
+from atos.base import Atos
 
-class Revertions(Regex):
+class Revertions(Atos):
 
     def __init__(self, text):
         super().__init__(text)
