@@ -7,7 +7,7 @@ from atos.retificacoes import RetAposentadoria
 from atos.substituicao import Substituicao
 
 _dict = {"aposentadoria": Retirements, "reversoes": Revertions, "nomeacao": NomeacaoComissionados,
-         "exoneracao": Exoneracao }  #"abono": AbonoPermanencia, "retificacoes": RetAposentadoria,
+         "exoneracao": Exoneracao, "abono": AbonoPermanencia}  #, "retificacoes": RetAposentadoria,
         # "substituicao": Substituicao}
 
 class Regex:
