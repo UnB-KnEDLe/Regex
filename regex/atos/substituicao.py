@@ -5,11 +5,14 @@ class Substituicao(Atos):
     def __init__(self, text):
         super().__init__(text)
 
+    def _regex_flags(self):
+        return re.IGNORECASE
+
     def _act_name(self):
         return "Substituição de Funções"
 
     def _props_names(self):
-        return ["Nome do Servidor Substituto", "Matrícula do Servidor Substituto", 
+        return ["Tipo do Ato", "Nome do Servidor Substituto", "Matrícula do Servidor Substituto", 
                 "Nome do Servidor a ser Substituido", "Matrícula do Servidor a ser Substituido"
                 "Cargo", "Símbolo do cargo do servidor substituto",
                 "Cargo comissionado objeto da substituição",
@@ -20,8 +23,8 @@ class Substituicao(Atos):
         
     def _rule_for_inst(self):
         start = "(DESIGNAR)"
-        body = "(.*?para\ssubstituir[\s\S]*?)"
-        end = "(\.\n)"
+        body = "(.*?para\ssubstituir[\s\S]*?"
+        end = "\.\n)"
         return start + body + end
     
     def _prop_rules(self):

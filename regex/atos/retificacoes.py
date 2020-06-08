@@ -5,20 +5,23 @@ class RetAposentadoria(Atos):
     def __init__(self, file):
         super().__init__(file)
 
+    def _regex_flags(self):
+        return re.IGNORECASE
+
     def _act_name(self):
         return "Retificações de Aposentadoria"
 
     def _props_names(self):
-        return ["Tipo de Documento", "Número do documento", "Data do documento ",
+        return ["Tipo do Ato", "Tipo de Documento", "Número do documento", "Data do documento ",
                 "Número do DODF", "Data do DODF", "Página do DODF", "Nome do Servidor",
                 "Matrícula", "Cargo", "Classe", "Padrao", "Matricula SIAPE",
                 "Informação Errada", "Informação Corrigida"]
         
         
     def _rule_for_inst(self):
-        start = "(RETIFICAR,.*?ato\sque\sconcedeu\saposentadoria[\s\S]*?)"
-        body = ""
-        end = "(\.\n)"
+        start = "(RETIFICAR,.*?ato\sque\sconcedeu\saposentadoria)"
+        body = "([\s\S]*?"
+        end = "\.\n)"
         return start + body + end
     
     def _prop_rules(self):

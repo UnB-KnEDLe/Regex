@@ -8,9 +8,6 @@ from core import Regex
 
 if __name__ == "__main__":
     txts = helper.get_txts("./data/test/")
-
-    # abo = Regex.get_act_obj("abono", txts[6])
-    # print(abo.data_frame)
-
-    all = Regex.get_all_df(txts[0])
-    # print(all)
+    ret = Regex.get_act_obj("aposentadoria", txts[2])
+    helper._build_act_txt(ret.acts_str, "aposentadoria")
+    print(ret.data_frame)
