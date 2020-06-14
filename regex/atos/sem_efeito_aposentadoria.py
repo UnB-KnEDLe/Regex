@@ -21,10 +21,12 @@ class SemEfeitoAposentadoria:
             'dodf_tipo_edicao': r'',
         }
     _raw_pattern = (
-        r"TORNAR SEM EFEITO" \
-        r"([^\n]+\n){0,10}?[^\n]*?(aposentadoria|aposentou|({})?{}|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s".format(
-            case_insensitive("des"), case_insensitive("averbacao")
-        )\
+        r"TORNAR SEM EFEITO" + \
+        # r"([^\n]+\n){0,10}?[^\n]*?(aposentadoria|aposentou|({})?{}|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s" \
+        r"([^\n]+\n){0,10}?[^\n]*?(aposentadoria|aposentou|([Dd][Ee][Ss])?[Aa][Vv][Ee][Rr][Bb][Aa]..[Oo]|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s" \
+        # .format(
+        #     case_insensitive("des"), case_insensitive("averbacao")
+        # ) +\
         r"(?=[A-Z]{4})"
     )
     _BAD_MATCH_WORDS = [
@@ -110,19 +112,27 @@ class SemEfeitoAposentadoria:
         # DODF date usually is easily extracted.
         dodf_dates = []
         tornado_sem_dates = []
+        pages = []
         for tex in self._processed_text:
             # First, get DODF date.
             date_mt = re.search(DODF_DATE, tex)
             dodf_dates.append(date_mt)
             if date_mt:
+                # THEN lets search for publication date (heuristic)
                 span = date_mt.span()
                 removed_dodf_date = '{}{}'.format(tex[:span[0]], tex[span[1]:])
                 published_date = re.search(FLEX_DATE, removed_dodf_date)
                 tornado_sem_dates.append(published_date)
+                # ALSO, page numbers (if present) come right after DODF date
+
+                window = tex[span[1]:][:50]
+                page = re.search(PAGE, window)
+                pages.append(page)
             else:
                 tornado_sem_dates.append(None)
+                pages.append(None)
 
-        return list(zip(dodf_dates, tornado_sem_dates))
+        return list(zip(dodf_dates, tornado_sem_dates, pages))
 
 
     def _build_dataframe(self):
