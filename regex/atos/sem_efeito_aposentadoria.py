@@ -1,8 +1,50 @@
 import pandas as pd
 import re
-from atos.common_regex import DODF_DATE, FLEX_DATE, PAGE
-from atos.common_regex import SERVIDOR_NOME_COMPLETO, NOME_COMPLETO, DODF
+from atos.common_regex import *
+
 from atos.utils import case_insensitive
+
+def case_insensitive(s: str):
+    """Returns regular expression similar to `s` but case careless.
+
+    Note: strings containing characters set, as `[ab]` will be transformed to `[[Aa][Bb]]`.
+        `s` is espected to NOT contain situations like that.
+    Args:
+        s: the stringregular expression string to be transformed into case careless
+    Returns:
+        the new case-insensitive string 
+    """
+
+    return ''.join([c if not c.isalpha() else '[{}{}]'.format(c.upper(), c.lower()) for c in s])
+
+
+DODF = r"(DODF|[Dd]i.rio\s+[Oo]ficial\s+[Dd]o\s+[Dd]istrito\s+[Ff]ederal)"
+
+MONTHS_LOWER = (
+    r'(janeiro|fevereiro|março|abril|maio|junho|' \
+    r'julho|agosto|setembro|outubro|novembro|dezembro)'
+)
+
+FLEX_DATE = r"(?P<date>\d+\s+(?:de\s*)?{}\s*(?:de\s*)?\d+|\d+[.]\d+[.]\d+|\d+[/]\d+[/]\d+)".format(case_insensitive(MONTHS_LOWER))
+
+DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
+
+SIAPE = r"{}\s*(?:n?.?)\s*[-\d.Xx/\s]".format(case_insensitive("siape"))
+
+MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+([-\d.XxZzYz/\s]+)"
+
+MATRICULA_GENERICO = r"(?<![^\s])(?P<matricula>([-\d.XxZzYz/\s]{1,})[.-][\dXxYy][^\d])"
+
+MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-Z]{3})\s*,\s+([-\d.XxZzYz/\s]{3,}?),"
+
+# WARNING: "page_nums" may match not only nums.
+# TODO: deal with edge cases like "p 33". There are only a few ones.
+PAGE = r"(?P<page>(?:p\.|p.ginas?|p.?gs?\.?\b)(?P<page_nums>.{0,}?)(?=[,;:]|\n|\s[A-Z]|$))"
+
+SERVIDOR_NOME_COMPLETO = r"servidora?\b.{0,40}?[.'A-ZÀ-Ž\s]{8,}"
+
+NOME_COMPLETO = r"[.'A-ZÀ-Ž\s]{8,}"
+
 
 class SemEfeitoAposentadoria:
     _name = "Atos Tornados sem Efeito (aposentadoria)"
@@ -115,6 +157,7 @@ class SemEfeitoAposentadoria:
         tornado_sem_dates = []
         pages = []
         servidor_nome = []
+        servidor_matricula = []
         for tex in self._processed_text:
             # First, get DODF date.
             date_mt = re.search(DODF_DATE, tex)
@@ -133,14 +176,26 @@ class SemEfeitoAposentadoria:
             else:
                 tornado_sem_dates.append(None)
                 pages.append(None)
+            # Try to match employee
             servidor = re.search(SERVIDOR_NOME_COMPLETO, tex)
             if not servidor:
+                #  If it fails then a more generic regex is searched for
                 dodf_span = re.search(DODF, tex).span()
                 servidor = re.search(NOME_COMPLETO, tex[dodf_span[1]:])
             servidor_nome.append(servidor)
-        return list(zip(dodf_dates, tornado_sem_dates, pages, servidor_nome))
+            
+            if servidor:
+                matricula = re.search(MATRICULA_GENERICO, tex[servidor.end():])
+                if not matricula:
+                    matricula = re.search(MATRICULA_ENTRE_VIRGULAS, tex[servidor.end():] )
+            else:
+                matricula = None
+
+            servidor_matricula.append(matricula)
+        return list(zip(dodf_dates, tornado_sem_dates, pages, servidor_nome, servidor_matricula))
 
 
     def _build_dataframe(self):
         return pd.DataFrame()
     
+
