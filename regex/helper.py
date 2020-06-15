@@ -1,17 +1,18 @@
 import os
+import pandas as pd
+from core import Regex
 from os.path import isfile, join
 
-# def print_database_dfs(files_path, ato):
-#     res_dfs = []
-#     for txt in files_path:
-#         txt_str = open(txt, "r").read()
-#         ret = Retirements(txt_str)
-#         if not ret.data_frame.empty:
-#             res_dfs.append(ret.data_frame)
+def extract_multiple(files, type):
+    res = []
+    for file in files:
+        res_df = Regex.get_act_df(type, file)
+        if not res_df.empty:
+            res.append(res_df)
 
-#     rets_final = pd.concat([pd.DataFrame(df) for df in res_dfs],
-#                             ignore_index=True)
-#     print_dataframe(rets_final)
+    res_final = pd.concat([pd.DataFrame(df) for df in res],
+                            ignore_index=True)
+    return res_final
 
 
 def _build_act_txt(acts, name, save_path="./results/"):
@@ -31,10 +32,10 @@ def print_dataframe(df):
                 )
     return style_df
 
-def get_txts(path):
-    txt_files = []
+def get_files_path(path):
+    files_path = []
     for root, _, files in os.walk(path):
         for file in files:
             if file.endswith(".txt"):
-                txt_files.append(os.path.join(root, file))
-    return txt_files
+                files_path.append(os.path.join(root, file))
+    return files_path

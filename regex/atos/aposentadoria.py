@@ -24,7 +24,7 @@ class Retirements(Atos):
         return start + body + end
     
     def _prop_rules(self):
-        rules = {"sei": "[P|p]rocesso:?\s[s|S]?[e|E]?[i|I]?\s?[n|N]?[o|O]?\s?([\s\S]*?).\s",
+        rules = {"sei": "[P|p]rocesso:?\s[s|S]?[e|E]?[i|I]?\s?[n|N]?[o|O]?\s?([\s\S]*?)[.]\s",
                  "nome": "\s([^,]*?),\smatricula",
                  "matricula":"matricula\s?n?o?\s([\s\S]*?)[,|\s]",
                  "tipo_ret": "",
@@ -35,5 +35,5 @@ class Retirements(Atos):
                  "fundamento": "nos\stermos\sdo\s[a|A]rtigo([\s\S]*?),\sa?\s",
                  "orgao": "Lotacao:|Quadro de Pessoal d[a|e|o]([\s\S]*?)[.|,]",
                  "vigencia": "",
-                 "siape": "[S|s][I|i][A|a][P|p][E|e]\s[N|n]?[o|O]?\s([\s\S]*?)[,| | .]"}      
+                 "siape": "[S|s][I|i][A|a][P|p][E|e]\s[N|n]?[o|O]?\s([\s\S]*?)[,| | .]"} 
         return rules

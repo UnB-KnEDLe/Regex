@@ -29,9 +29,9 @@ class Revertions(Atos):
     def _prop_rules(self):
         rules = {"sei": "processo\s([\s\S]*?).\s",
                  "nome": "\s([^,]*?),\smatricula",
-                 "matricula":"matricula\s?n?o?\s([\s\S]*?)[,| ]",
-                 "cargo": "[C|c]argo\s[d|D]?[e|E]?\s([\s\S]*?),",
-                 "classe": "[C|c]lasse\s([\s\S]*?),",
+                 "matricula":"matricula\s?n?o?\s([\s\S]*?)[,|\s]",
+                 "cargo": "Cargo de([\s\S]*?)\,",
+                 "classe": "[C|c]lasse ([\s\S]*?)\,",
                  "padrao": "[p|P]adr[a|ã]o\s([\s\S]*?),",
                  "quadro": "d?[e|a|o]?(Quadro[\s\S]*?)[,|;|.]",
                  "fundamento": "nos\stermos\sdo\s([\s\S]*?),\sa?\s",
