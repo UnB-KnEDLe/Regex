@@ -1,6 +1,6 @@
 from atos.utils import case_insensitive
 
-_DODF = r"(DODF|[Dd]i.rio\s+[Oo]ficial\s+[Dd]o\s+[Dd]istrito\s+[Ff]ederal)"
+DODF = r"(DODF|[Dd]i.rio\s+[Oo]ficial\s+[Dd]o\s+[Dd]istrito\s+[Ff]ederal)"
 
 MONTHS_LOWER = (
     r'(janeiro|fevereiro|março|abril|maio|junho|' \
@@ -9,7 +9,7 @@ MONTHS_LOWER = (
 
 FLEX_DATE = r"(?P<date>\d+\s+(?:de\s*)?{}\s*(?:de\s*)?\d+|\d+[.]\d+[.]\d+|\d+[/]\d+[/]\d+)".format(case_insensitive(MONTHS_LOWER))
 
-DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(_DODF, FLEX_DATE)
+DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
 
 SIAPE = r"{}\s*(?:n?.?)\s*[-\d.Xx/\s]".format(case_insensitive("siape"))
 

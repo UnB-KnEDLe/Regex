@@ -1,6 +1,7 @@
 import pandas as pd
 import re
-from atos.common_regex import DODF_DATE, FLEX_DATE, PAGE, SERVIDOR_NOME_COMPLETO, NOME_COMPLETO
+from atos.common_regex import DODF_DATE, FLEX_DATE, PAGE
+from atos.common_regex import SERVIDOR_NOME_COMPLETO, NOME_COMPLETO, DODF
 from atos.utils import case_insensitive
 
 class SemEfeitoAposentadoria:
@@ -134,7 +135,8 @@ class SemEfeitoAposentadoria:
                 pages.append(None)
             servidor = re.search(SERVIDOR_NOME_COMPLETO, tex)
             if not servidor:
-                servidor = re.search(NOME_COMPLETO, tex[tex.rfind('DODF')+len('DODF'):])
+                dodf_span = re.search(DODF, tex).span()
+                servidor = re.search(NOME_COMPLETO, tex[dodf_span[1]:])
             servidor_nome.append(servidor)
         return list(zip(dodf_dates, tornado_sem_dates, pages, servidor_nome))
 
