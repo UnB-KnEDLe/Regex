@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-from atos.common_regex import DODF_DATE, FLEX_DATE, PAGE
+from atos.common_regex import DODF_DATE, FLEX_DATE, PAGE, SERVIDOR_NOME_COMPLETO, NOME_COMPLETO
 from atos.utils import case_insensitive
 
 class SemEfeitoAposentadoria:
@@ -23,7 +23,7 @@ class SemEfeitoAposentadoria:
     _raw_pattern = (
         r"TORNAR SEM EFEITO" + \
         # r"([^\n]+\n){0,10}?[^\n]*?(aposentadoria|aposentou|({})?{}|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s" \
-        r"([^\n]+\n){0,10}?[^\n]*?(aposentadoria|aposentou|([Dd][Ee][Ss])?[Aa][Vv][Ee][Rr][Bb][Aa]..[Oo]|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s" \
+        r"([^\n]+\n){0,10}?[^\n]*?(tempo\sde\sservi.o|aposentadoria|aposentou|([Dd][Ee][Ss])?[Aa][Vv][Ee][Rr][Bb][Aa]..[Oo]|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s" \
         # .format(
         #     case_insensitive("des"), case_insensitive("averbacao")
         # ) +\
@@ -39,7 +39,6 @@ class SemEfeitoAposentadoria:
         "APOSTILAR",
         "RETIFICAR",
     ]
-
 
     def __init__(self,file_name, text=False):
         if not text:
@@ -79,8 +78,9 @@ class SemEfeitoAposentadoria:
         Return:
             a list with all re.Match objects resulted from searching for
         """
-
-        return list(re.finditer(self._raw_pattern, self._text))
+        l = list(re.finditer(self._raw_pattern, self._text))
+        print("DEBUG:", len(l), 'matches')
+        return l
 
 
     def _post_process_raw(self):
@@ -113,6 +113,7 @@ class SemEfeitoAposentadoria:
         dodf_dates = []
         tornado_sem_dates = []
         pages = []
+        servidor_nome = []
         for tex in self._processed_text:
             # First, get DODF date.
             date_mt = re.search(DODF_DATE, tex)
@@ -124,15 +125,18 @@ class SemEfeitoAposentadoria:
                 published_date = re.search(FLEX_DATE, removed_dodf_date)
                 tornado_sem_dates.append(published_date)
                 # ALSO, page numbers (if present) come right after DODF date
-
                 window = tex[span[1]:][:50]
                 page = re.search(PAGE, window)
+                
                 pages.append(page)
             else:
                 tornado_sem_dates.append(None)
                 pages.append(None)
-
-        return list(zip(dodf_dates, tornado_sem_dates, pages))
+            servidor = re.search(SERVIDOR_NOME_COMPLETO, tex)
+            if not servidor:
+                servidor = re.search(NOME_COMPLETO, tex[tex.rfind('DODF')+len('DODF'):])
+            servidor_nome.append(servidor)
+        return list(zip(dodf_dates, tornado_sem_dates, pages, servidor_nome))
 
 
     def _build_dataframe(self):

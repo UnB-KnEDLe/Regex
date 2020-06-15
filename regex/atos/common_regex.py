@@ -21,3 +21,7 @@ MATRICULA_GENERICO = r"(?<![^\s])(?P<matricula>([-\d.XxZzYz/\s]{1,})[.-][\dXxYy]
 # TODO: deal with edge cases like "p 33". There are only a few ones.
 PAGE = r"(?P<page>(?:p\.|p.ginas?|p.?gs?\.?\b)(?P<page_nums>.{0,}?)(?=[,;:]|\n|\s[A-Z]|$))"
 
+SERVIDOR_NOME_COMPLETO = r"servidora?\b.{0,40}?[.'A-ZÀ-Ž\s]{8,}"
+
+NOME_COMPLETO = r"[.'A-ZÀ-Ž\s]{8,}"
+
