@@ -13,13 +13,14 @@ class Revertions(Atos):
         return "Reversão"
 
     def _props_names(self):
-        return ["Tipo do Ato", "SEI", "Nome", "Matrícula", "Cargo", "Classe",
+        return ["Tipo do Ato", "SEI", "Nome", "Matricula", "Cargo", "Classe",
                "Padrao", "Quadro", "Fundamento Legal", "Orgao", "Vigencia", "Matricula SIAPE"]
         
     def _rule_for_inst(self):
         start = "(reverter\sa\satividade[,|\s])"
         body = "([\s\S]*?"
-        end = "processo\s[\s\S]*?[.]\s)"
+        end = "(?<!lei)\s(?:[0-9|\s]*?[.|-]\s?)+?[0-9|\s]*/\s?[0-9|\s]*-?\s?[0-9|\s]*[.|,])"
+        # end = "processo\s[\s\S]*?[.]\s)"
         # end = "[P|p]rocesso:?\s[s|S]?[e|E]?[i|I]?\s?[n|N]?[o|O]?\s?([\s\S]*?)[.]\s"
         # end2 = "Processo\sde\sReversao:?\sn?\s?([\s\S]*?)[.]\s"
         # end3 = "Processo\sde\sReversao\sSigiloso:?\s([\s\S]*?)[.]\s"
@@ -27,15 +28,15 @@ class Revertions(Atos):
         return start + body + end
     
     def _prop_rules(self):
-        rules = {"sei": "processo\s([\s\S]*?).\s",
+        rules = {"sei": "(?<!lei)\s((?:[0-9|\s]*?[.|-]\s?)+?[0-9|\s]*/\s?[0-9|\s]*-?\s?[0-9|\s]*)[.|,]",
                  "nome": "\s([^,]*?),\smatricula",
-                 "matricula":"matricula\s?n?o?\s([\s\S]*?)[,|\s]",
+                 "matricula":"matricula\s?n?o?\s([\s\S]*?-[\s\S]*?)[,]",
                  "cargo": "Cargo de([\s\S]*?)\,",
                  "classe": "[C|c]lasse ([\s\S]*?)\,",
                  "padrao": "[p|P]adr[a|ã]o\s([\s\S]*?),",
                  "quadro": "d?[e|a|o]?(Quadro[\s\S]*?)[,|;|.]",
                  "fundamento": "nos\stermos\sdo\s([\s\S]*?),\sa?\s",
-                 "orgao": "Lotacao: ([\s\S]*?)[.]",
+                 "orgao": "Lotacao:|Quadro\sde\sPessoal\sd[a|e|o]([\s\S]*?)[.|,]",
                  "vigencia": "",
                  "siape": ""}
              
