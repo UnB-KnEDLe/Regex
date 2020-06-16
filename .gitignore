@@ -1,6 +1,6 @@
 data/dodfs_txt_barra_n/
 data/dodfs_txt_espaco/
-results/
+results/*.txt
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
