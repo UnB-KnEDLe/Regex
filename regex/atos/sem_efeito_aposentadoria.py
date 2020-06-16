@@ -27,7 +27,7 @@ MONTHS_LOWER = (
 
 FLEX_DATE = r"(?P<date>\d+\s+(?:de\s*)?{}\s*(?:de\s*)?\d+|\d+[.]\d+[.]\d+|\d+[/]\d+[/]\d+)".format(case_insensitive(MONTHS_LOWER))
 
-DODF_NUM = r"(DODF|[Dd]i.rio [Oo]ficial [Dd]o [Dd]istrito [Ff]ederal)\s*(n?r?o?.?)(?P<num>\d+)"
+DODF_NUM = r"(DODF|[Dd]i.rio [Oo]ficial [Dd]o [Dd]istrito [Ff]ederal)\s*(n?r?o?[^\d]?)(?P<num>\d+)"
 DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
 
 SIAPE = r"{}\s*(?:n?.?)\s*[-\d.Xx/\s]".format(case_insensitive("siape"))
@@ -40,43 +40,26 @@ MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-Z]{3})\s*,\s+([-\d.XxZzYz/\s]{3,}?),"
 
 # WARNING: "page_nums" may match not only nums.
 # TODO: deal with edge cases like "p 33". There are only a few ones.
-PAGE = r"(?P<page>(?:p\.|p.ginas?|p.?gs?\.?\b)(?P<page_nums>.{0,}?)(?=[,;:]|\n|\s[A-Z]|$))"
+PAGE = r"((?:p\.|p.ginas?|p.?gs?\.?\b)(?P<page_nums>.{0,}?)(?=[,;:]|\n|\s[A-Z]|$))"
 
-SERVIDOR_NOME_COMPLETO = r"servidora?\b.{0,40}?[.'A-ZÀ-Ž\s]{8,}"
+SERVIDOR_NOME_COMPLETO = r"servidora?\b.{0,40}?(?P<name>[A-ZÀ-Ž][.'A-ZÀ-Ž\s]{7,})"
 
-NOME_COMPLETO = r"[.'A-ZÀ-Ž\s]{8,}"
+NOME_COMPLETO = r"(?P<name>[.'A-ZÀ-Ž\s]{8,})"
 
-EDICAO_DODF = r"([Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
+EDICAO_DODF = r"(?P<edition>[Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
 
 LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
 UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 
 class SemEfeitoAposentadoria:
     _name = "Atos Tornados sem Efeito (aposentadoria)"
-    # _prop_rules = {
-    #         'dodf_num': r'',
-    #         'dodf_data': r'',
-    #         'dodf_pagina': r'',
-    #         'nome': r'',
-    #         'simbolo': r'',     # Could not find one.
-    #         'cargo_comissao': r'',       # TODO. HARD
-    #         'hierarquia': r'',  # ??
-    #         'orgao': r'',        # ? Kind of hard..
-    #         'cargo_efetivo': r'', # Have no ideia what is this
-    #         'matricula': r'',
-    #         'matricula_siape': r'',
-    #         'tipo_documento': r'',
-    #         'dodf_tipo_edicao': r'',
-    #     }
+
     _raw_pattern = (
         r"TORNAR SEM EFEITO" + \
-        # r"([^\n]+\n){0,10}?[^\n]*?(aposentadoria|aposentou|({})?{}|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s" \
         r"([^\n]+\n){0,10}?[^\n]*?(tempo\sde\sservi.o|aposentadoria|aposentou|([Dd][Ee][Ss])?[Aa][Vv][Ee][Rr][Bb][Aa]..[Oo]|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s" \
-        # .format(
-        #     case_insensitive("des"), case_insensitive("averbacao")
-        # ) +\
         r"(?=[A-Z]{4})"
     )
+
     _BAD_MATCH_WORDS = [
         "AVERBAR",
         "NOMEAR",
@@ -88,7 +71,8 @@ class SemEfeitoAposentadoria:
         "RETIFICAR",
     ]
 
-    def __init__(self,file_name, text=False, nlp=None):
+    def __init__(self,file_name, text=False, nlp=None, debug=False):
+        self._debug = debug
         self.nlp = nlp
         if not text:
             fp = open(file_name, "r")
@@ -105,8 +89,8 @@ class SemEfeitoAposentadoria:
         
         self._data_frame = self._build_dataframe()
     @classmethod
-    def _self_match(cls, s):
-        return re.match(s, s)
+    def _self_match(cls, s:str, group_name: str):
+        return re.match(fr'(?P<{group_name}>{s})', s)
 
 
     @property
@@ -174,6 +158,13 @@ class SemEfeitoAposentadoria:
             date_mt = re.search(DODF_DATE, tex)
             dodf_dates.append(date_mt)
             if date_mt:
+                # seach for DODF num
+                num = re.search(DODF_NUM, date_mt.group())
+                if num:
+                    print('num.span():', num.span())
+                    # num = re.search(fr'(?P<num>{date_mt.group()})', date_mt.group())
+                dodf_num.append(num)
+
                 # THEN lets search for publication date (heuristic)
                 span = date_mt.span()
                 removed_dodf_date = '{}{}'.format(tex[:span[0]], tex[span[1]:])
@@ -184,12 +175,6 @@ class SemEfeitoAposentadoria:
                 page = re.search(PAGE, window)                
                 pages.append(page)
 
-                # seach for DODF num
-                num = re.search(DODF_NUM, date_mt.group())
-                if num:
-                    print('num.span():', num.span())
-                    num = re.search(r'\d+', date_mt.group())
-                dodf_num.append(num)
             else:
                 tornado_sem_dates.append(None)
                 dodf_num.append(None)
@@ -215,18 +200,8 @@ class SemEfeitoAposentadoria:
                         if cand.label_ == 'PER':
                             print(cand, 'IS THE PERSON')
                             break
-                    # for cand in all_cands:
-                    #     cand = cand.strip().title()
-                    #     print("cand: |{}|".format(cand))
-                    #     for ent in nlp(cand).ents:
-                    #         if ent.label_ == 'PER':
-                    #             person_cands.append(cand)
-                    # if len(person_cands) > 1:
-                    #     person_cands = ' para '.join(person_cands)                    
-                    #     for ent in 
-                    servidor_nome.append(re.search(cand.text.upper(), tex))
-            else:
-                servidor_nome.append(servidor)
+                    servidor =  re.search(cand.text.upper(), tex)
+            servidor_nome.append(servidor)
             
             if servidor:
                 matricula = re.search(MATRICULA_GENERICO, tex[servidor.end():])
@@ -236,20 +211,30 @@ class SemEfeitoAposentadoria:
                 matricula = None
             servidor_matricula.append(matricula)
 
-            # edicao = re.search(r"{}.{{0,30}}?\b{}\b".format(DODF, EDICAO_DODF), tex.lower())
             _ = DODF + r".{0,50}?" + EDICAO_DODF
-            # print('reg edicao: ', _)
             edicao = re.search(_, tex)
 
             if edicao:
-                lower = tex.lower()
-                if re.search(r"\bextra\b", lower):
-                    edicoes.append(self._self_match("extra"))
-                elif re.search("\bsuplement(ar|o)\b", lower):
-                    edicoes.append(self._self_match("suplemento"))
+                if re.search(r"\bextra\b", tex, re.IGNORECASE):
+                    edicoes.append(re.search(r"\bextra\b", lower))
+                elif re.search("\bsuplement(ar|o)\b", tex, re.IGNORECASE):
+                    edicoes.append( re.search("\bsuplement(ar|o)\b", lower) )
+                else:
+                    edicoes.append( self._self_match("tipo-estranho", "edition") )
             else:
-                edicoes.append(self._self_match("normal"))
-        return list(zip(
+                edicoes.append(self._self_match("normal", "edition"))
+        if self._debug:
+            print(
+                "dodf_dates:", len(dodf_dates), '\n',
+                "dodf_num:", len(dodf_num), '\n',
+                "tornado_sem_dates:", len(tornado_sem_dates), '\n',
+                "pages:", len(pages), '\n',
+                "servidor_nome:", len(servidor_nome), '\n',
+                "servidor_matricula:", len(servidor_matricula), '\n',
+                "edicoes:", len(edicoes), '\n'
+
+            )
+        l = list(zip(
             dodf_dates,
             dodf_num,
             tornado_sem_dates,
@@ -258,11 +243,27 @@ class SemEfeitoAposentadoria:
             servidor_matricula,
             edicoes
         ))
+        if len(l) != len(self._processed_text):
+            raise Exception("Processed matches and list of attributes differ! {} vs {}".format(
+                len(self._processed_text), len(l)
+            ))
+        return l
 
 
     def _build_dataframe(self):
+        def by_group_name(match):
+            if match:
+                keys = list(match.groupdict().keys())
+                if len(keys) == 0:
+                    return match.group()
+                elif len(keys) > 1:
+                    raise ValueError("Named regex must have AT MOST ONE NAMED GROUP.")
+                print('key: ', keys[0])
+                return match.group(keys[0])
+            else:
+                return "nan"
         return pd.DataFrame(
-            data=map(lambda x: [i.group() if i else i for i in x],self._final_matches),
+            data=map(lambda lis: [by_group_name(i) for i in lis],self._final_matches),
             columns=[
                 'dodf_data',
                 'dodf_num',
