@@ -3,6 +3,9 @@ import re
 from atos.common_regex import *
 
 from atos.utils import case_insensitive
+# import spacy
+
+# nlp=spacy.load('pt_core_news_sm')
 
 def case_insensitive(s: str):
     """Returns regular expression similar to `s` but case careless.
@@ -46,6 +49,11 @@ SERVIDOR_NOME_COMPLETO = r"servidora?\b.{0,40}?[.'A-ZÀ-Ž\s]{8,}"
 NOME_COMPLETO = r"[.'A-ZÀ-Ž\s]{8,}"
 
 
+EDICAO_DODF = r"([Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
+
+LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
+UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
+
 class SemEfeitoAposentadoria:
     _name = "Atos Tornados sem Efeito (aposentadoria)"
     _prop_rules = {
@@ -83,7 +91,8 @@ class SemEfeitoAposentadoria:
         "RETIFICAR",
     ]
 
-    def __init__(self,file_name, text=False):
+    def __init__(self,file_name, text=False, nlp=None):
+        self.nlp = nlp
         if not text:
             fp = open(file_name, "r")
             self._file_name = file_name
@@ -158,6 +167,7 @@ class SemEfeitoAposentadoria:
         pages = []
         servidor_nome = []
         servidor_matricula = []
+        edicoes = []
         for tex in self._processed_text:
             # First, get DODF date.
             date_mt = re.search(DODF_DATE, tex)
@@ -178,11 +188,37 @@ class SemEfeitoAposentadoria:
                 pages.append(None)
             # Try to match employee
             servidor = re.search(SERVIDOR_NOME_COMPLETO, tex)
+            print("SERVIDOR:", servidor)
             if not servidor:
+                print("SEM SERVIDOR!!!")
                 #  If it fails then a more generic regex is searched for
                 dodf_span = re.search(DODF, tex).span()
                 servidor = re.search(NOME_COMPLETO, tex[dodf_span[1]:])
-            servidor_nome.append(servidor)
+                if not servidor:
+                    # Appeal to spacy
+                    all_cands = re.findall(
+                        r"({})".format(NOME_COMPLETO),
+                        tex
+                    )
+                    print("ALL_CANDS:")
+                    print('\t(', *all_cands, sep=')\n\t(', end=')\n\n')
+                    person_cands = []
+                    for cand in self.nlp(', '.join([c.strip().title() for c in all_cands])).ents:
+                        if cand.label_ == 'PER':
+                            print(cand, 'IS THE PERSON')
+                            break
+                    # for cand in all_cands:
+                    #     cand = cand.strip().title()
+                    #     print("cand: |{}|".format(cand))
+                    #     for ent in nlp(cand).ents:
+                    #         if ent.label_ == 'PER':
+                    #             person_cands.append(cand)
+                    # if len(person_cands) > 1:
+                    #     person_cands = ' para '.join(person_cands)                    
+                    #     for ent in 
+                    servidor_nome.append(re.search(cand.text.upper(), tex))
+            else:
+                servidor_nome.append(servidor)
             
             if servidor:
                 matricula = re.search(MATRICULA_GENERICO, tex[servidor.end():])
@@ -190,9 +226,29 @@ class SemEfeitoAposentadoria:
                     matricula = re.search(MATRICULA_ENTRE_VIRGULAS, tex[servidor.end():] )
             else:
                 matricula = None
-
             servidor_matricula.append(matricula)
-        return list(zip(dodf_dates, tornado_sem_dates, pages, servidor_nome, servidor_matricula))
+
+            # edicao = re.search(r"{}.{{0,30}}?\b{}\b".format(DODF, EDICAO_DODF), tex.lower())
+            _ = DODF + r".{0,50}?" + EDICAO_DODF
+            # print('reg edicao: ', _)
+            edicao = re.search(_, tex)
+
+            if edicao:
+                lower = tex.lower()
+                if re.search(r"\bextra\b", lower):
+                    edicoes.append("extra")
+                elif re.search("\bsuplement(ar|o)\b", lower):
+                    edicoes.append("suplementar")
+            else:
+                edicoes.append("normal")
+        return list(zip(
+            dodf_dates,
+            tornado_sem_dates,
+            pages,
+            servidor_nome,
+            servidor_matricula,
+            edicoes
+        ))
 
 
     def _build_dataframe(self):
