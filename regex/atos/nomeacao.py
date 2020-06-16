@@ -9,7 +9,8 @@ class NomeacaoComissionados(Atos):
         return "Nomeação"
 
     def _props_names(self):
-        return ['tipo','nome','cargo_efetivo','matricula','siape','simbolo','cargo_comissao','lotacao','orgao']
+        return ['Tipo', 'Nome', 'Cargo Efetivo', 'Matricula', 'Siape',
+                'Simbolo', 'Cargo Comissao', 'Lotacao', 'Orgao']
         
     def _rule_for_inst(self):
         start = r"(NOMEAR)"
