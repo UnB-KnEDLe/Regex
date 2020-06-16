@@ -1,8 +1,5 @@
 import pandas as pd
 import re
-from atos.common_regex import *
-
-from atos.utils import case_insensitive
 # import spacy
 
 # nlp=spacy.load('pt_core_news_sm')
@@ -24,12 +21,13 @@ def case_insensitive(s: str):
 DODF = r"(DODF|[Dd]i.rio\s+[Oo]ficial\s+[Dd]o\s+[Dd]istrito\s+[Ff]ederal)"
 
 MONTHS_LOWER = (
-    r'(janeiro|fevereiro|março|abril|maio|junho|' \
+    r'(janeiro|fevereiro|mar.o|abril|maio|junho|' \
     r'julho|agosto|setembro|outubro|novembro|dezembro)'
 )
 
 FLEX_DATE = r"(?P<date>\d+\s+(?:de\s*)?{}\s*(?:de\s*)?\d+|\d+[.]\d+[.]\d+|\d+[/]\d+[/]\d+)".format(case_insensitive(MONTHS_LOWER))
 
+DODF_NUM = r"(DODF|[Dd]i.rio [Oo]ficial [Dd]o [Dd]istrito [Ff]ederal)\s*(n?r?o?.?)(?P<num>\d+)"
 DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
 
 SIAPE = r"{}\s*(?:n?.?)\s*[-\d.Xx/\s]".format(case_insensitive("siape"))
@@ -48,7 +46,6 @@ SERVIDOR_NOME_COMPLETO = r"servidora?\b.{0,40}?[.'A-ZÀ-Ž\s]{8,}"
 
 NOME_COMPLETO = r"[.'A-ZÀ-Ž\s]{8,}"
 
-
 EDICAO_DODF = r"([Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
 
 LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
@@ -56,21 +53,21 @@ UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 
 class SemEfeitoAposentadoria:
     _name = "Atos Tornados sem Efeito (aposentadoria)"
-    _prop_rules = {
-            'dodf_num': r'',
-            'dodf_data': r'',
-            'dodf_pagina': r'',
-            'nome': r'',
-            'simbolo': r'',     # Could not find one.
-            'cargo_comissao': r'',       # TODO. HARD
-            'hierarquia': r'',  # ??
-            'orgao': r'',        # ? Kind of hard..
-            'cargo_efetivo': r'', # Have no ideia what is this
-            'matricula': r'',
-            'matricula_siape': r'',
-            'tipo_documento': r'',
-            'dodf_tipo_edicao': r'',
-        }
+    # _prop_rules = {
+    #         'dodf_num': r'',
+    #         'dodf_data': r'',
+    #         'dodf_pagina': r'',
+    #         'nome': r'',
+    #         'simbolo': r'',     # Could not find one.
+    #         'cargo_comissao': r'',       # TODO. HARD
+    #         'hierarquia': r'',  # ??
+    #         'orgao': r'',        # ? Kind of hard..
+    #         'cargo_efetivo': r'', # Have no ideia what is this
+    #         'matricula': r'',
+    #         'matricula_siape': r'',
+    #         'tipo_documento': r'',
+    #         'dodf_tipo_edicao': r'',
+    #     }
     _raw_pattern = (
         r"TORNAR SEM EFEITO" + \
         # r"([^\n]+\n){0,10}?[^\n]*?(aposentadoria|aposentou|({})?{}|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s" \
@@ -107,7 +104,10 @@ class SemEfeitoAposentadoria:
         self._final_matches = self._run_property_extraction()
         
         self._data_frame = self._build_dataframe()
-        
+    @classmethod
+    def _self_match(cls, s):
+        return re.match(s, s)
+
 
     @property
     def data_frame(self):
@@ -163,6 +163,7 @@ class SemEfeitoAposentadoria:
         """
         # DODF date usually is easily extracted.
         dodf_dates = []
+        dodf_num = []
         tornado_sem_dates = []
         pages = []
         servidor_nome = []
@@ -180,11 +181,18 @@ class SemEfeitoAposentadoria:
                 tornado_sem_dates.append(published_date)
                 # ALSO, page numbers (if present) come right after DODF date
                 window = tex[span[1]:][:50]
-                page = re.search(PAGE, window)
-                
+                page = re.search(PAGE, window)                
                 pages.append(page)
+
+                # seach for DODF num
+                num = re.search(DODF_NUM, date_mt.group())
+                if num:
+                    print('num.span():', num.span())
+                    num = re.search(r'\d+', date_mt.group())
+                dodf_num.append(num)
             else:
                 tornado_sem_dates.append(None)
+                dodf_num.append(None)
                 pages.append(None)
             # Try to match employee
             servidor = re.search(SERVIDOR_NOME_COMPLETO, tex)
@@ -236,13 +244,14 @@ class SemEfeitoAposentadoria:
             if edicao:
                 lower = tex.lower()
                 if re.search(r"\bextra\b", lower):
-                    edicoes.append("extra")
+                    edicoes.append(self._self_match("extra"))
                 elif re.search("\bsuplement(ar|o)\b", lower):
-                    edicoes.append("suplementar")
+                    edicoes.append(self._self_match("suplemento"))
             else:
-                edicoes.append("normal")
+                edicoes.append(self._self_match("normal"))
         return list(zip(
             dodf_dates,
+            dodf_num,
             tornado_sem_dates,
             pages,
             servidor_nome,
@@ -252,6 +261,17 @@ class SemEfeitoAposentadoria:
 
 
     def _build_dataframe(self):
-        return pd.DataFrame()
+        return pd.DataFrame(
+            data=map(lambda x: [i.group() if i else i for i in x],self._final_matches),
+            columns=[
+                'dodf_data',
+                'dodf_num',
+                'tse_data',
+                'pag',
+                'nome',
+                'matricula',
+                'tipo_edicao'
+            ]
+        )
     
 
