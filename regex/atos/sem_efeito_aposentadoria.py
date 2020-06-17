@@ -53,6 +53,8 @@ UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 
 PROCESSO = r"(?P<processo>[-0-9/.]+)"
 
+TIPO_DOCUMENTO = r"(portaria|ordem de servi.o|instrucao)"
+
 class SemEfeitoAposentadoria:
     _name = "Atos Tornados sem Efeito (aposentadoria)"
 
@@ -117,7 +119,8 @@ class SemEfeitoAposentadoria:
             a list with all re.Match objects resulted from searching for
         """
         l = list(re.finditer(self._raw_pattern, self._text))
-        print("DEBUG:", len(l), 'matches')
+        if self._debug:
+            print("DEBUG:", len(l), 'matches')
         return l
 
 
@@ -148,6 +151,7 @@ class SemEfeitoAposentadoria:
                 but haven't figured how to do so (yet).
         """
         # DODF date usually is easily extracted.
+        tipo_lis = []
         processo_lis = []
         dodf_dates = []
         dodf_num = []
@@ -157,13 +161,14 @@ class SemEfeitoAposentadoria:
         servidor_matricula = []
         edicoes = []
         for tex in self._processed_text:
-
+            tipo = re.search(TIPO_DOCUMENTO, tex[len("TORNAR SEM EFEITO"):], re.IGNORECASE)
+            tipo_lis.append(tipo)
             processo = re.search(
                 r"{}:?[^\d]{}(?P<processo>\d[-0-9./\s]*\d(?!\d))".format(case_insensitive("processo"), "{0,50}?",PROCESSO),
                 tex)
             processo_lis.append(processo)
 
-
+            
             # First, get DODF date.
             date_mt = re.search(DODF_DATE, tex)
             dodf_dates.append(date_mt)
@@ -171,7 +176,8 @@ class SemEfeitoAposentadoria:
                 # seach for DODF num
                 num = re.search(DODF_NUM, date_mt.group())
                 if num:
-                    print('num.span():', num.span())
+                    if self._debug:
+                        print('num.span():', num.span())
                     # num = re.search(fr'(?P<num>{date_mt.group()})', date_mt.group())
                 dodf_num.append(num)
 
@@ -191,9 +197,11 @@ class SemEfeitoAposentadoria:
                 pages.append(None)
             # Try to match employee
             servidor = re.search(SERVIDOR_NOME_COMPLETO, tex)
-            print("SERVIDOR:", servidor)
+            if self._debug:
+                print("SERVIDOR:", servidor)
             if not servidor:
-                print("SEM SERVIDOR!!!")
+                if self._debug:
+                    print("SEM SERVIDOR!!!")
                 #  If it fails then a more generic regex is searched for
                 dodf_span = re.search(DODF, tex).span()
                 servidor = re.search(NOME_COMPLETO, tex[dodf_span[1]:])
@@ -235,6 +243,7 @@ class SemEfeitoAposentadoria:
                 edicoes.append(self._self_match("normal", "edition"))
         if self._debug:
             print(
+                "tipo_lis:", len(tipo_lis), '\n',
                 "processo_lis:", len(processo_lis), '\n',
                 "dodf_dates:", len(dodf_dates), '\n',
                 "dodf_num:", len(dodf_num), '\n',
@@ -246,6 +255,7 @@ class SemEfeitoAposentadoria:
 
             )
         l = list(zip(
+            tipo_lis,
             processo_lis,
             dodf_dates,
             dodf_num,
@@ -270,13 +280,15 @@ class SemEfeitoAposentadoria:
                     return match.group()
                 elif len(keys) > 1:
                     raise ValueError("Named regex must have AT MOST ONE NAMED GROUP.")
-                print('key: ', keys[0])
+                if self._debug:
+                    print('key: ', keys[0])
                 return match.group(keys[0])
             else:
                 return "nan"
         return pd.DataFrame(
             data=map(lambda lis: [by_group_name(i) for i in lis],self._final_matches),
             columns=[
+                'tipo',
                 'processo',
                 'dodf_data',
                 'dodf_num',
