@@ -26,13 +26,13 @@ class Revertions(Atos):
         rules = {"sei": "(?<!lei)\s((?:[0-9|\s]*?[.|-]\s?)+?[0-9|\s]*/\s?[0-9|\s]*-?\s?[0-9|\s]*)[.|,]",
                  "nome": "\s([^,]*?),\smatricula",
                  "matricula":"matricula\s?n?o?\s([\s\S]*?-[\s\S]*?)[,]",
-                 "cargo": "Cargo\sde([\s\S]*?)\,",
-                 "classe": "[C|c]lasse\s([\s\S]*?)\,",
+                 "cargo": "(?:Cargo|Carreira)\sde([\s\S]*?)\,",
+                 "classe": "(?:([^,]*?)\sclasse,)?(?(1)|classe\s([\s\S]*?),)",
                  "padrao": "[p|P]adr[a|ã]o\s([\s\S]*?),",
                  "quadro": "d?[e|a|o]?(Quadro[\s\S]*?)[,|;|.]",
                  "fundamento": "nos\stermos\sdo\s([\s\S]*?),\sa?\s",
                  "orgao": "Lotacao:|Quadro\sde\sPessoal\sd[a|e|o]([\s\S]*?)[.|,]",
                  "vigencia": "",
-                 "siape": ""}
+                 "siape": "siape\sn?o?\s([\s\S]*?)[,| | .]"}
              
         return rules
