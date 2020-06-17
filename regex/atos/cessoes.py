@@ -35,19 +35,19 @@ DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
 
 SIAPE = r"{}\s*(?:n?.?)\s*(?P<siape>[-\d.Xx/\s]+)".format(case_insensitive("siape"))
 
-MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+([-\d.XxZzYz/\s]+)"
+MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+(?P<matricula>[-\d.XxZzYz/\s]+)"
 
 MATRICULA_GENERICO = r"(?<![^\s])(?P<matricula>([-\d.XxZzYz/\s]{1,})[.-][\dXxYy][^\d])"
 
-MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-Z]{3})\s*,\s+([-\d.XxZzYz/\s]{3,}?),"
+MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-Z]{3})\s*,\s+(?P<matricula>[-\d.XxZzYz/\s]{3,}?),"
 
 # WARNING: "page_nums" may match not only nums.
 # TODO: deal with edge cases like "p 33". There are only a few ones.
 PAGE = r"((?:p\.|p.ginas?|p.?gs?\.?\b)(?P<page_nums>.{0,}?)(?=[,;:]|\n|\s[A-Z]|$))"
 
-SERVIDOR_NOME_COMPLETO = r"servidora?\b.{0,40}?(?P<name>[A-ZÀ-Ž][.'A-ZÀ-Ž\s]{7,})"
+SERVIDOR_NOME_COMPLETO = r"(servidor.?|empregad.)[^A-ZÀ-Ž]{0,40}(?P<name>[A-ZÀ-Ž][.'A-ZÀ-Ž\s]{6,}(?=[,]))"
 
-NOME_COMPLETO = r"(?P<name>['A-ZÀ-Ž][.'A-ZÀ-Ž\s]{6,}[,.:;])"
+NOME_COMPLETO = r"(?P<name>['A-ZÀ-Ž][.'A-ZÀ-Ž\s]{6,}(?=[,.:;]))"
 
 EDICAO_DODF = r"(?P<edition>[Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
 
@@ -62,7 +62,7 @@ class Cessoes:
     _raw_pattern = (
         # r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9]{0, 12})([^\n]+\n){0,2}[^\n]*[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s?\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente))"
         # r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9]{0, 12})([^\n]+\n){0,2}[^\n]*[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s?\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente))"
-        r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9]{0,12})([^\n]+?\n){0,2}?[^\n]*?[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s?\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente))"
+        r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9]{0,12})([^\n]+?\n){0,2}?[^\n]*?[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s?\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente|" + case_insensitive('publique-se') + "))"
     )
 
     def __init__(self,file_name, text=False, debug=False):
@@ -113,7 +113,8 @@ class Cessoes:
             a list with all re.Match objects resulted from searching for
         """
         l = list(re.finditer(self._raw_pattern, self._no_crosswords))
-        print("DEBUG:", len(l), 'matches')
+        if self._debug:
+            print("DEBUG:", len(l), 'matches')
         return l
 
 
@@ -136,6 +137,7 @@ class Cessoes:
                 but haven't figured how to do so (yet).
         """
         # DODF date usually is easily extracted.        
+        interessado_nome = []
         servidor_nome = []
         servidor_matricula = []
         processo_lis = []
@@ -144,11 +146,11 @@ class Cessoes:
         # orgao_cessionario = [] # HARD
         for idx, tex in enumerate(self._raw_matches):
             # First, get DODF date.
-            print('IDX:', idx)
             processo = re.search(r"{}{}".format(
                     tex.group(1) , PROCESSO
                 ), tex.group())
-            nome = re.search(
+            nome = re.search(SERVIDOR_NOME_COMPLETO, tex.group())
+            interessado = re.search(
                 r"{}:\s*({})".format(
                     case_insensitive("interessad."),
                     NOME_COMPLETO
@@ -162,18 +164,20 @@ class Cessoes:
             siape = re.search(SIAPE, tex.group())
 
             processo_lis.append(processo)
+            interessado_nome.append(interessado)
             servidor_nome.append(nome)
             servidor_matricula.append(matricula)
             onus_lis.append(onus)
             siape_lis.append(siape)
         if self._debug:
             print(
-                "servidor_nome:", len(servidor_nome), '\n',
+                "interessado_nome:", len(interessado_nome), '\n',
                 "servidor_matricula:", len(servidor_matricula), '\n',
                 "processo_lis:", len(processo_lis), '\n',
                 "onus_lis:", len(onus_lis), '\n',
             )
         l = list(zip(            
+            interessado_nome,
             servidor_nome,
             servidor_matricula,
             processo_lis,
@@ -195,14 +199,16 @@ class Cessoes:
                     return match.group()
                 elif len(keys) > 1:
                     raise ValueError("Named regex must have AT MOST ONE NAMED GROUP.")
-                print('key: ', keys[0])
+                if self._debug:
+                    print('key: ', keys[0])
                 return match.group(keys[0])
             else:
                 return "nan"
         return pd.DataFrame(
             data=map(lambda lis: [by_group_name(i) for i in lis],self._final_matches),
             columns=[
-                'nome',
+                'interessado',
+                'servidor_nome',
                 'matricula',
                 'processo',
                 'onus',
