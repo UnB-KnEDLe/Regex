@@ -1,3 +1,4 @@
+import re
 from atos.base import Atos
 
 class RetAposentadoria(Atos):
@@ -19,24 +20,24 @@ class RetAposentadoria(Atos):
         
         
     def _rule_for_inst(self):
-        start = "(RETIFICAR,.*?ato\sque\sconcedeu\saposentadoria)"
-        body = "([\s\S]*?"
+        start = "(RETIFICAR,\s)"
+        body = "(.*?ato\sque\sconcedeu\saposentadoria[\s\S]*?"
         end = "\.\n)"
         return start + body + end
     
     def _prop_rules(self):
-        rules = {"Tipo doc": "",
-                 "Num doc": "",
-                 "Data doc": "",
-                 "Num dodf": "",
-                 "Data dodf": "",
-                 "Pag dodf": "",
-                 "nome": "\s([^,]*?),\smatricula",
-                 "matricula":"matricula\s?n?o?\s([\s\S]*?)[,|\s]",
-                 "cargo": "Cargo\s[d|D]?[e|E]?\s([\s\S]*?),",
-                 "classe": "[C|c]lasse\s([\s\S]*?),",
+        rules = {"tipo_doc": "^n[a|o]\s([\s\S]*?),?\s?(?:[0-9]*?),?\sde\s(?:[0-9]*?[/|.][0-9]*?[/|.][0-9]*?|,)",
+                 "num_doc": "n[a|o]\s(?:[\s\S]*?),?\s?([0-9]*?),?\sde\s(?:[0-9]*?[/|.][0-9]*?[/|.][0-9]*?|,)",
+                 "data_doc": "n[a|o]\s(?:[\s\S]*?),?\s?(?:[0-9]*?),?\sde\s([0-9]*?[/|.][0-9]*?[/|.][0-9]*?),\s",
+                 "num_dodf": "dodf[\s\S]*?([0-9]*?),",
+                 "data_dodf": "dodf[\s\S]*?(?:[0-9]*?)([0-9]*?[/|.][0-9]*?[/|.][0-9]*?)[,|\s]",
+                 "pag_dodf": "",
+                 "nome": "\sa\s([^,]*?),\smatricula",
+                 "matricula":"matricula\s?n?o?\s([\s\S]*?-[\s\S]*?)[,]",
+                 "cargo": "(?:Cargo|Carreira)\sde([\s\S]*?)\,",
+                 "classe": "(?:([^,]*?)\sclasse,)?(?(1)|classe\s([\s\S]*?),)",
                  "padrao": "[p|P]adr[a|ã]o\s([\s\S]*?),",
-                 "siape": "[S|s][I|i][A|a][P|p][E|e]\s[N|n]?[o|O]?\s([\s\S]*?)[,| | .]",
-                 "Info errada": "",
-                 "Info corrigida": ""}
+                 "siape": "siape\sn?o?\s([\s\S]*?)[,| | .]",
+                 "le": "\sle[,|:|;]\s?([\s\S]*?),?\sleia[\s\S]*?[,|:|;]\s(?:[\s\S]*?)[.]\s",
+                 "leiase": "\sle[,|:|;]\s?(?:[\s\S]*?),?\sleia[\s\S]*?[,|:|;]\s([\s\S]*?)[.]\s"}
         return rules
