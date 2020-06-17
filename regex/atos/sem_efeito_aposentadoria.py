@@ -51,6 +51,8 @@ EDICAO_DODF = r"(?P<edition>[Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
 LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
 UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 
+PROCESSO = r"(?P<processo>[-0-9/.]+)"
+
 class SemEfeitoAposentadoria:
     _name = "Atos Tornados sem Efeito (aposentadoria)"
 
@@ -146,6 +148,7 @@ class SemEfeitoAposentadoria:
                 but haven't figured how to do so (yet).
         """
         # DODF date usually is easily extracted.
+        processo_lis = []
         dodf_dates = []
         dodf_num = []
         tornado_sem_dates = []
@@ -154,6 +157,13 @@ class SemEfeitoAposentadoria:
         servidor_matricula = []
         edicoes = []
         for tex in self._processed_text:
+
+            processo = re.search(
+                r"{}:?[^\d]{}(?P<processo>\d[-0-9./\s]*\d(?!\d))".format(case_insensitive("processo"), "{0,50}?",PROCESSO),
+                tex)
+            processo_lis.append(processo)
+
+
             # First, get DODF date.
             date_mt = re.search(DODF_DATE, tex)
             dodf_dates.append(date_mt)
@@ -225,6 +235,7 @@ class SemEfeitoAposentadoria:
                 edicoes.append(self._self_match("normal", "edition"))
         if self._debug:
             print(
+                "processo_lis:", len(processo_lis), '\n',
                 "dodf_dates:", len(dodf_dates), '\n',
                 "dodf_num:", len(dodf_num), '\n',
                 "tornado_sem_dates:", len(tornado_sem_dates), '\n',
@@ -235,6 +246,7 @@ class SemEfeitoAposentadoria:
 
             )
         l = list(zip(
+            processo_lis,
             dodf_dates,
             dodf_num,
             tornado_sem_dates,
@@ -265,6 +277,7 @@ class SemEfeitoAposentadoria:
         return pd.DataFrame(
             data=map(lambda lis: [by_group_name(i) for i in lis],self._final_matches),
             columns=[
+                'processo',
                 'dodf_data',
                 'dodf_num',
                 'tse_data',
