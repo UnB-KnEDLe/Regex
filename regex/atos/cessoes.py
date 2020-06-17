@@ -9,7 +9,7 @@ def case_insensitive(s: str):
     Args:
         s: the stringregular expression string to be transformed into case careless
     Returns:
-        the new case-insensitive string 
+        the new case-insensitive string
     """
 
     return ''.join([c if not c.isalpha() else '[{}{}]'.format(c.upper(), c.lower()) for c in s])
@@ -59,34 +59,36 @@ UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 class Cessoes:
     _name = "Cessoes"
 
-    _raw_pattern = (
-        # r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9]{0, 12})([^\n]+\n){0,2}[^\n]*[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s?\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente))"
-        # r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9]{0, 12})([^\n]+\n){0,2}[^\n]*[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s?\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente))"
-        r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9]{0,12})([^\n]+?\n){0,2}?[^\n]*?[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s?\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente|" + case_insensitive('publique-se') + "))"
+    _rule_for_inst = (
+        r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9]{0,12})([^\n]+?\n){0,2}?[^\n]*?[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s*\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente|" + case_insensitive('publique-se') + "))"
     )
-
-    def __init__(self,file_name, text=False, debug=False):
-        self._debug = debug
-        if not text:
-            fp = open(file_name, "r")
-            self._file_name = file_name
-            self._text = fp.read()
-            self._no_crosswords = remove_crossed_words(self._text)
-            fp.close()
-        else:
-            self._file_name = ''
-            self._text = file_name
-        
-        self._raw_matches = self._extract_raw_matches()
-        self._processed_text = self._post_process_raw()
-        self._final_matches = self._run_property_extraction()
-        
-        self._data_frame = self._build_dataframe()
 
 
     @classmethod
     def _self_match(cls, s:str, group_name: str):
         return re.match(fr'(?P<{group_name}>{s})', s)
+
+
+    def __init__(self, file_name, text=False, debug=False):
+        self._debug = debug
+        if not text:
+            fp = open(file_name, "r")
+            self._file_name = file_name
+            self._text = fp.read()
+            fp.close()
+        else:
+            self._file_name = ''
+            self._text = file_name
+
+        # Join lines separated ny hyphen
+        self._text_no_crosswords = remove_crossed_words(self._text)
+
+        # Matches all occurences of self._rule_for_inst over all self._text
+        self._nocrosswords_matches = self._extract_nocrossword_matches()
+
+        self._final_matches = self._run_property_extraction()
+
+        self._data_frame = self._build_dataframe()
 
 
     @property
@@ -99,31 +101,22 @@ class Cessoes:
 
     @property
     def acts_str(self):
-        return self._processed_text    
+        return [i.group() for i in self._nocrosswords_matches]
 
     @property
     def props(self):
         return self._final_matches
-    
-    
-    def _extract_raw_matches(self):
-        """Returns list of re.Match objects found on `self._text`.
+
+
+    def _extract_nocrossword_matches(self):
+        """Returns list of re.Match objects found on `self._text_no_crosswords`.
 
         Return:
             a list with all re.Match objects resulted from searching for
         """
-        l = list(re.finditer(self._raw_pattern, self._no_crosswords))
+        l = list(re.finditer(self._rule_for_inst, self._text_no_crosswords))
         if self._debug:
             print("DEBUG:", len(l), 'matches')
-        return l
-
-
-    def _post_process_raw(self):
-        l = []
-        for raw in self._raw_matches:
-            s = raw.group()
-            single_spaces = re.sub(r'\s+', r' ', s)            
-            l.append(single_spaces)
         return l
 
 
@@ -136,15 +129,17 @@ class Cessoes:
                 Maybe a pipepilne-like approach would be better
                 but haven't figured how to do so (yet).
         """
-        # DODF date usually is easily extracted.        
+        # DODF date usually is easily extracted.
         interessado_nome = []
         servidor_nome = []
         servidor_matricula = []
+        cargo_efetivo_lis = []
         processo_lis = []
         onus_lis = []
         siape_lis = []
         # orgao_cessionario = [] # HARD
-        for idx, tex in enumerate(self._raw_matches):
+        for idx, tex in enumerate(self._nocrosswords_matches):
+
             # First, get DODF date.
             processo = re.search(r"{}{}".format(
                     tex.group(1) , PROCESSO
@@ -157,9 +152,21 @@ class Cessoes:
                 ), tex.group())
             matricula = re.search(MATRICULA, tex.group())
             if not matricula:
-                matricula = re.search(MATRICULA_GENERICO, tex)
+                matricula = re.search(MATRICULA_GENERICO, tex.group())
                 if not matricula:
-                    matricula = re.search(MATRICULA_ENTRE_VIRGULAS, tex)
+                    matricula = re.search(MATRICULA_ENTRE_VIRGULAS, tex.group())
+            if not matricula or not nome:
+                cargo = None
+            else:
+                # TODO: improve robustness: cargo_efetivo is assumed to be either right after 
+                # employee name or its matricula
+                if matricula.start() - nome.end() > 10:
+                    # cargo entre 'nome' e 'matricula'
+                    cargo = re.search(r",(?P<cargo>[^,]+)", tex.group()[nome.end():matricula.start()])
+                else:
+                    # cargo apohs matricula
+                    cargo = re.search(r",(?P<cargo>[^,]+)", tex.group()[matricula.end():])        
+
             onus = re.search(r"\b[oô]nus\b.+?[.]", tex.group(), re.DOTALL)
             siape = re.search(SIAPE, tex.group())
 
@@ -167,6 +174,7 @@ class Cessoes:
             interessado_nome.append(interessado)
             servidor_nome.append(nome)
             servidor_matricula.append(matricula)
+            cargo_efetivo_lis.append(cargo)
             onus_lis.append(onus)
             siape_lis.append(siape)
         if self._debug:
@@ -176,17 +184,18 @@ class Cessoes:
                 "processo_lis:", len(processo_lis), '\n',
                 "onus_lis:", len(onus_lis), '\n',
             )
-        l = list(zip(            
+        l = list(zip(
             interessado_nome,
             servidor_nome,
             servidor_matricula,
+            cargo_efetivo_lis,
             processo_lis,
             onus_lis,
             siape_lis,
         ))
-        if len(l) != len(self._processed_text):
+        if len(l) != len(self._nocrosswords_matches):
             raise Exception("Processed matches and list of attributes differ! {} vs {}".format(
-                len(self._processed_text), len(l)
+                len(self._nocrosswords_matches), len(l)
             ))
         return l
 
@@ -204,16 +213,16 @@ class Cessoes:
                 return match.group(keys[0])
             else:
                 return "nan"
+
         return pd.DataFrame(
             data=map(lambda lis: [by_group_name(i) for i in lis],self._final_matches),
             columns=[
                 'interessado',
                 'servidor_nome',
                 'matricula',
+                'cargo_efetivo',
                 'processo',
                 'onus',
                 'siape',
             ]
         )
-    
-
