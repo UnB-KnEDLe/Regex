@@ -33,7 +33,7 @@ FLEX_DATE = r"(?P<date>\d+\s+(?:de\s*)?{}\s*(?:de\s*)?\d+|\d+[.]\d+[.]\d+|\d+[/]
 DODF_NUM = r"(DODF|[Dd]i.rio [Oo]ficial [Dd]o [Dd]istrito [Ff]ederal)\s*(n?r?o?[^\d]?)(?P<num>\d+)"
 DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
 
-SIAPE = r"{}\s*(?:n?.?)\s*[-\d.Xx/\s]".format(case_insensitive("siape"))
+SIAPE = r"{}\s*(?:n?.?)\s*[-\d.Xx/\s]+".format(case_insensitive("siape"))
 
 MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+([-\d.XxZzYz/\s]+)"
 
@@ -47,7 +47,7 @@ PAGE = r"((?:p\.|p.ginas?|p.?gs?\.?\b)(?P<page_nums>.{0,}?)(?=[,;:]|\n|\s[A-Z]|$
 
 SERVIDOR_NOME_COMPLETO = r"servidora?\b.{0,40}?(?P<name>[A-ZÀ-Ž][.'A-ZÀ-Ž\s]{7,})"
 
-NOME_COMPLETO = r"(?P<name>[.'A-ZÀ-Ž\s]{8,})"
+NOME_COMPLETO = r"(?P<name>['A-ZÀ-Ž][.'A-ZÀ-Ž\s]{6,}[,.:;])"
 
 EDICAO_DODF = r"(?P<edition>[Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
 
@@ -140,6 +140,7 @@ class Cessoes:
         servidor_matricula = []
         processo_lis = []
         onus_lis = []
+        siape_lis = []
         # orgao_cessionario = [] # HARD
         for idx, tex in enumerate(self._raw_matches):
             # First, get DODF date.
@@ -158,12 +159,13 @@ class Cessoes:
                 if not matricula:
                     matricula = re.search(MATRICULA_ENTRE_VIRGULAS, tex)
             onus = re.search(r"\b[oô]nus\b.+?[.]", tex.group(), re.DOTALL)
+            siape = re.search(SIAPE, tex.group())
 
             processo_lis.append(processo)
             servidor_nome.append(nome)
             servidor_matricula.append(matricula)
             onus_lis.append(onus)
-
+            siape_lis.append(siape)
         if self._debug:
             print(
                 "servidor_nome:", len(servidor_nome), '\n',
@@ -176,6 +178,7 @@ class Cessoes:
             servidor_matricula,
             processo_lis,
             onus_lis,
+            siape_lis,
         ))
         if len(l) != len(self._processed_text):
             raise Exception("Processed matches and list of attributes differ! {} vs {}".format(
@@ -203,6 +206,7 @@ class Cessoes:
                 'matricula',
                 'processo',
                 'onus',
+                'siape',
             ]
         )
     
