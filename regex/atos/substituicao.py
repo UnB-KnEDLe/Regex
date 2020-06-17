@@ -1,3 +1,4 @@
+import re
 from atos.base import Atos
 
 class Substituicao(Atos):
@@ -22,13 +23,13 @@ class Substituicao(Atos):
         
         
     def _rule_for_inst(self):
-        start = "(DESIGNAR)"
-        body = "(.*?para\ssubstituir[\s\S]*?"
-        end = "\.\n)"
+        start = r"(DESIGNAR)"
+        body = r"([\s\S]*?)"
+        end = r"\.\s"
         return start + body + end
     
     def _prop_rules(self):
-        rules = {"Nome Serv Substituto": "",
+        rules = {"Nome Serv Substituto": r"(^[A-ZÀ-Ž\s]+[A-ZÀ-Ž])",
                  "Matricula Serv Substituto": "",
                  "Nome do Servidor a ser Substituido": "",
                  "Matrícula do Servidor a ser Substituido": "",
