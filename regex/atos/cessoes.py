@@ -33,7 +33,7 @@ FLEX_DATE = r"(?P<date>\d+\s+(?:de\s*)?{}\s*(?:de\s*)?\d+|\d+[.]\d+[.]\d+|\d+[/]
 DODF_NUM = r"(DODF|[Dd]i.rio [Oo]ficial [Dd]o [Dd]istrito [Ff]ederal)\s*(n?r?o?[^\d]?)(?P<num>\d+)"
 DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
 
-SIAPE = r"{}\s*(?:n?.?)\s*[-\d.Xx/\s]+".format(case_insensitive("siape"))
+SIAPE = r"{}\s*(?:n?.?)\s*(?P<siape>[-\d.Xx/\s]+)".format(case_insensitive("siape"))
 
 MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+([-\d.XxZzYz/\s]+)"
 
