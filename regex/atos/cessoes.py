@@ -145,11 +145,15 @@ class Cessoes:
                     tex.group(1) , PROCESSO
                 ), tex.group())
             nome = re.search(SERVIDOR_NOME_COMPLETO, tex.group())
+            onus = re.search(r"\b[oô]nus\b[^.]+[.]", tex.group(), re.DOTALL)
+            siape = re.search(SIAPE, tex.group())
+
             interessado = re.search(
                 r"{}:\s*({})".format(
                     case_insensitive("interessad."),
                     NOME_COMPLETO
                 ), tex.group())
+            
             matricula = re.search(MATRICULA, tex.group())
             if not matricula:
                 matricula = re.search(MATRICULA_GENERICO, tex.group())
@@ -167,22 +171,22 @@ class Cessoes:
                     # cargo apohs matricula
                     cargo = re.search(r",(?P<cargo>[^,]+)", tex.group()[matricula.end():])        
 
-            onus = re.search(r"\b[oô]nus\b.+?[.]", tex.group(), re.DOTALL)
-            siape = re.search(SIAPE, tex.group())
-
-            processo_lis.append(processo)
             interessado_nome.append(interessado)
             servidor_nome.append(nome)
             servidor_matricula.append(matricula)
             cargo_efetivo_lis.append(cargo)
+            processo_lis.append(processo)
             onus_lis.append(onus)
             siape_lis.append(siape)
         if self._debug:
             print(
                 "interessado_nome:", len(interessado_nome), '\n',
+                "servidor_nome:", len(servidor_nome), '\n',
                 "servidor_matricula:", len(servidor_matricula), '\n',
+                "cargo_efetivo_lis:", len(cargo_efetivo_lis), '\n',
                 "processo_lis:", len(processo_lis), '\n',
                 "onus_lis:", len(onus_lis), '\n',
+                "siape_lis:", len(siape_lis), '\n',
             )
         l = list(zip(
             interessado_nome,
@@ -218,7 +222,7 @@ class Cessoes:
             data=map(lambda lis: [by_group_name(i) for i in lis],self._final_matches),
             columns=[
                 'interessado',
-                'servidor_nome',
+                'nome',
                 'matricula',
                 'cargo_efetivo',
                 'processo',
