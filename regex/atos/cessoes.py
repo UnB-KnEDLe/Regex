@@ -36,9 +36,7 @@ DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
 SIAPE = r"{}\s*(?:n?.?)\s*(?P<siape>[-\d.Xx/\s]+)".format(case_insensitive("siape"))
 
 MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+(?P<matricula>[-\d.XxZzYz/\s]+)"
-
 MATRICULA_GENERICO = r"(?<![^\s])(?P<matricula>([-\d.XxZzYz/\s]{1,})[.-][\dXxYy][^\d])"
-
 MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-Z]{3})\s*,\s+(?P<matricula>[-\d.XxZzYz/\s]{3,}?),"
 
 # WARNING: "page_nums" may match not only nums.
@@ -51,7 +49,9 @@ NOME_COMPLETO = r"(?P<name>['A-ZÀ-Ž][.'A-ZÀ-Ž\s]{6,}(?=[,.:;]))"
 
 EDICAO_DODF = r"(?P<edition>[Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
 
-PROCESSO = r"(?P<processo>[-0-9/.]+)"
+PROCESSO_NUM = r"(?P<processo>[-0-9/.]+)"
+INTERESSADO = r"{}:\s*{}".format(case_insensitive("interessad."), NOME_COMPLETO)
+ONUS = r"(?P<onus>\b[oôOÔ]{}\b[^.]+[.])".format(case_insensitive("nus"))
 
 LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
 UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
@@ -60,7 +60,7 @@ class Cessoes:
     _name = "Cessoes"
 
     _rule_for_inst = (
-        r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9]{0,12})([^\n]+?\n){0,2}?[^\n]*?[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s*\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente|" + case_insensitive('publique-se') + "))"
+        r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9/]{0,12})([^\n]+?\n){0,2}?[^\n]*?[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s*\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente|" + case_insensitive('publique-se') + "))"
     )
 
 
@@ -139,37 +139,30 @@ class Cessoes:
         siape_lis = []
         # orgao_cessionario = [] # HARD
         for idx, tex in enumerate(self._nocrosswords_matches):
-
-            # First, get DODF date.
-            processo = re.search(r"{}{}".format(
-                    tex.group(1) , PROCESSO
-                ), tex.group())
+            interessado = re.search(INTERESSADO, tex.group())
             nome = re.search(SERVIDOR_NOME_COMPLETO, tex.group())
-            onus = re.search(r"\b[oô]nus\b[^.]+[.]", tex.group(), re.DOTALL)
+            matricula = re.search(MATRICULA, tex.group()) or \
+                        re.search(MATRICULA_GENERICO, tex.group()) or \
+                        re.search(MATRICULA_ENTRE_VIRGULAS, tex.group())
+            processo = re.search(r"[^0-9]+?{}".format(PROCESSO_NUM), tex.group())
+            onus = re.search(ONUS, tex.group())
             siape = re.search(SIAPE, tex.group())
-
-            interessado = re.search(
-                r"{}:\s*({})".format(
-                    case_insensitive("interessad."),
-                    NOME_COMPLETO
-                ), tex.group())
-            
-            matricula = re.search(MATRICULA, tex.group())
-            if not matricula:
-                matricula = re.search(MATRICULA_GENERICO, tex.group())
-                if not matricula:
-                    matricula = re.search(MATRICULA_ENTRE_VIRGULAS, tex.group())
+        
             if not matricula or not nome:
                 cargo = None
             else:
                 # TODO: improve robustness: cargo_efetivo is assumed to be either right after 
                 # employee name or its matricula
-                if matricula.start() - nome.end() > 10:
-                    # cargo entre 'nome' e 'matricula'
-                    cargo = re.search(r",(?P<cargo>[^,]+)", tex.group()[nome.end():matricula.start()])
+                if 0 <= (matricula.start() - nome.end()) <= 5:
+                    # cargo NAO CABE entre 'servidor' e 'matricula'
+                    print("CARGO DEPOIS DE MATRICULA em",
+                            str(self._file_name).split('/')[-1])
+                    cargo = re.search(r",(?P<cargo>[^,]+)", tex.group()[ matricula.end()-1: ])        
                 else:
-                    # cargo apohs matricula
-                    cargo = re.search(r",(?P<cargo>[^,]+)", tex.group()[matricula.end():])        
+                    # cargo apohs nome do servidor
+                    print("CARGO ANTES DE MATRICULA em",
+                            str(self._file_name).split('/')[-1])
+                    cargo = re.search(r",(?P<cargo>[^,]+)", tex.group()[nome.end()-1:])
 
             interessado_nome.append(interessado)
             servidor_nome.append(nome)
@@ -206,6 +199,14 @@ class Cessoes:
 
     def _build_dataframe(self):
         def by_group_name(match):
+            """Returns named group, or the whole match if no named groups
+                    are present on the match.
+            Args:
+                match: a re.Match object
+            Returns: content of the unique named group found at match,
+                the whole match if there are no groups at all or raise
+                an exception if there are more than two groups.
+            """
             if match:
                 keys = list(match.groupdict().keys())
                 if len(keys) == 0:
