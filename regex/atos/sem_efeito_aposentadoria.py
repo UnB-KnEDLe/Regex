@@ -32,7 +32,7 @@ DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
 
 SIAPE = r"{}\s*(?:n?.?)\s*[-\d.Xx/\s]".format(case_insensitive("siape"))
 
-MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+([-\d.XxZzYz/\s]+)"
+MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+(?P<matricula>[-\d.XxZzYz/\s]+)"
 
 MATRICULA_GENERICO = r"(?<![^\s])(?P<matricula>([-\d.XxZzYz/\s]{1,})[.-][\dXxYy][^\d])"
 
@@ -159,6 +159,7 @@ class SemEfeitoAposentadoria:
         pages = []
         servidor_nome = []
         servidor_matricula = []
+        cargo_efetivo_lis = []
         edicoes = []
         for tex in self._processed_text:
             tipo = re.search(TIPO_DOCUMENTO, tex[len("TORNAR SEM EFEITO"):], re.IGNORECASE)
@@ -204,15 +205,16 @@ class SemEfeitoAposentadoria:
                     print("SEM SERVIDOR!!!")
                 #  If it fails then a more generic regex is searched for
                 dodf_span = re.search(DODF, tex).span()
+                # therefore `servidor` is not trustable when comes to start/end
                 servidor = re.search(NOME_COMPLETO, tex[dodf_span[1]:])
                 if not servidor:
                     # Appeal to spacy
                     all_cands = re.findall(
-                        r"({})".format(NOME_COMPLETO),
+                        r"{}".format(NOME_COMPLETO),
                         tex
                     )
-                    print("ALL_CANDS:")
-                    print('\t(', *all_cands, sep=')\n\t(', end=')\n\n')
+                    print("ALL_CANDS:", all_cands)
+                    # print('\t(', *all_cands, sep=')\n\t(', end=')\n\n')
                     person_cands = []
                     for cand in self.nlp(', '.join([c.strip().title() for c in all_cands])).ents:
                         if cand.label_ == 'PER':
@@ -222,21 +224,43 @@ class SemEfeitoAposentadoria:
             servidor_nome.append(servidor)
             
             if servidor:
-                matricula = re.search(MATRICULA_GENERICO, tex[servidor.end():])
+                matricula = re.search(MATRICULA, tex[servidor.end():])
                 if not matricula:
-                    matricula = re.search(MATRICULA_ENTRE_VIRGULAS, tex[servidor.end():] )
+                    matricula = re.search(MATRICULA_GENERICO, tex[servidor.end():])
+                    if not matricula:
+                        matricula = re.search(MATRICULA_ENTRE_VIRGULAS, tex[servidor.end():] )
             else:
                 matricula = None
+
+            if not matricula or not servidor:
+                cargo = None
+            else:
+                # TODO: improve robustness: cargo_efetivo is assumed to be either right after 
+                # employee name or its matricula
+                servidor = re.search(servidor.group(), tex)
+                matricula = re.search(matricula.group(), tex)
+                print("matricula.start() - servidor.end():", matricula.start() - servidor.end())
+                # NOTE: -1 is important in case `matricula` end with `,`
+                if 0 <= (matricula.start() - servidor.end()) <= 5:
+                    # cargo NAO CABE entre 'servidor' e 'matricula'
+                    print("CARGO DEPOIS DE MAATRICULA")
+                    cargo = re.search(r",(?P<cargo>[^,]+)", tex[ matricula.end()-1: ])        
+                else:
+                    # cargo apohs nome do servidor
+                    print("CARGO ANTES DE MATRICULA")
+                    cargo = re.search(r",(?P<cargo>[^,]+)", tex[servidor.end()-1:])
+            print("MATRICULA FINAL:", matricula.group())
             servidor_matricula.append(matricula)
 
+            cargo_efetivo_lis.append(cargo)
             _ = DODF + r".{0,50}?" + EDICAO_DODF
             edicao = re.search(_, tex)
 
             if edicao:
                 if re.search(r"\bextra\b", tex, re.IGNORECASE):
-                    edicoes.append(re.search(r"\bextra\b", lower))
+                    edicoes.append(re.search(r"\bextra\b", tex))
                 elif re.search("\bsuplement(ar|o)\b", tex, re.IGNORECASE):
-                    edicoes.append( re.search("\bsuplement(ar|o)\b", lower) )
+                    edicoes.append( re.search("\bsuplement(ar|o)\b", tex) )
                 else:
                     edicoes.append( self._self_match("tipo-estranho", "edition") )
             else:
@@ -251,6 +275,7 @@ class SemEfeitoAposentadoria:
                 "pages:", len(pages), '\n',
                 "servidor_nome:", len(servidor_nome), '\n',
                 "servidor_matricula:", len(servidor_matricula), '\n',
+                "cargo_efetivo:", len(cargo_efetivo_lis), '\n',
                 "edicoes:", len(edicoes), '\n'
 
             )
@@ -263,6 +288,7 @@ class SemEfeitoAposentadoria:
             pages,
             servidor_nome,
             servidor_matricula,
+            cargo_efetivo_lis,
             edicoes
         ))
         if len(l) != len(self._processed_text):
@@ -296,6 +322,7 @@ class SemEfeitoAposentadoria:
                 'pag',
                 'nome',
                 'matricula',
+                'cargo_efetivo',
                 'tipo_edicao'
             ]
         )
