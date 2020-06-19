@@ -1,5 +1,7 @@
-import pandas as pd
 import re
+from typing import List, Match
+import pandas as pd
+from atos.base import Atos
 
 def case_insensitive(s: str):
     """Returns regular expression similar to `s` but case careless.
@@ -56,39 +58,46 @@ ONUS = r"(?P<onus>\b[oôOÔ]{}\b[^.]+[.])".format(case_insensitive("nus"))
 LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
 UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 
-class Cessoes:
-    _name = "Cessoes"
-
-    _rule_for_inst = (
-        r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9/]{0,12})([^\n]+?\n){0,2}?[^\n]*?[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s*\bCESS.O\b([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente|" + case_insensitive('publique-se') + "))"
-    )
+class Cessoes(Atos):
+    _special_acts = ['matricula', 'cargo']
+    def __init__(self, file, debug=False, extra_search = True):
+        self._debug = debug
+        self._extra_search = True
+        self._processed_text = remove_crossed_words(open(file).read())
+        self._raw_matches = []
+        super().__init__(file)
 
 
     @classmethod
     def _self_match(cls, s:str, group_name: str):
         return re.match(fr'(?P<{group_name}>{s})', s)
 
+    def _act_name(self):
+        return "Cessoes"
 
-    def __init__(self, file_name, text=False, debug=False):
-        self._debug = debug
-        if not text:
-            fp = open(file_name, "r")
-            self._file_name = file_name
-            self._text = fp.read()
-            fp.close()
-        else:
-            self._file_name = ''
-            self._text = file_name
 
-        # Join lines separated ny hyphen
-        self._text_no_crosswords = remove_crossed_words(self._text)
+    def _props_names(self):
+        return list(self._prop_rules())
 
-        # Matches all occurences of self._rule_for_inst over all self._text
-        self._nocrosswords_matches = self._extract_nocrossword_matches()
+    def _rule_for_inst(self):
+        return (
+            r"([Pp][Rr][Oo][Cc][Ee][Ss][Ss][Oo][^0-9/]{0,12})([^\n]+?\n){0,2}?"\
+            + r"[^\n]*?[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s*\bCESS.O\b"\
+            + r"([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente|"\
+            + case_insensitive('publique-se') + "))"
+        )
 
-        self._final_matches = self._run_property_extraction()
 
-        self._data_frame = self._build_dataframe()
+    def _prop_rules(self):
+        return {
+            'interessado': INTERESSADO,
+            'nome': SERVIDOR_NOME_COMPLETO,
+            'matricula': MATRICULA,
+            'processo': r"[^0-9]+?{}".format(PROCESSO_NUM),
+            'onus': ONUS,
+            'siape': SIAPE,
+            'cargo': r",(?P<cargo>[^,]+)",
+        }
 
 
     @property
@@ -99,25 +108,86 @@ class Cessoes:
     def name(self):
         return self._name
 
+
     @property
     def acts_str(self):
-        return [i.group() for i in self._nocrosswords_matches]
-
-    @property
-    def props(self):
-        return self._final_matches
+        return self._acts_str
 
 
-    def _extract_nocrossword_matches(self):
+    def _find_instances(self) -> List[Match]:
         """Returns list of re.Match objects found on `self._text_no_crosswords`.
 
         Return:
             a list with all re.Match objects resulted from searching for
         """
-        l = list(re.finditer(self._rule_for_inst, self._text_no_crosswords))
+        text = remove_crossed_words( self._text )
+        self._raw_matches = list(
+            re.finditer(self._inst_rule, text, flags=self._flags)
+        )
+        l = [i.group() for i in self._raw_matches]
         if self._debug:
             print("DEBUG:", len(l), 'matches')
         return l
+
+
+    def _get_special_acts(self, lis_matches):
+        for i, match in enumerate(self._raw_matches):
+            act = match.group()
+            matricula = re.search(MATRICULA, act) or \
+                    re.search(MATRICULA_GENERICO, act) or \
+                    re.search(MATRICULA_ENTRE_VIRGULAS, act)
+            
+            nome = re.search(self._rules['nome'], act)
+            if matricula and nome:
+                offset = matricula.end()-1 if 0 <= (matricula.start() - nome.end()) <= 5 \
+                            else nome.end() - 1
+                cargo, = self._find_props(r",(?P<cargo>[^,]+)", act[offset:])
+            else:
+                cargo = "nan"
+            
+            lis_matches[i]['matricula'] = matricula.group('matricula') if matricula \
+                                        else "nan"
+            lis_matches[i]['cargo'] = cargo
+
+
+    def _find_props(self, rule, act):
+        """Returns named group, or the whole match if no named groups
+                are present on the match.
+        Args:
+            match: a re.Match object
+        Returns: content of the unique named group found at match,
+            the whole match if there are no groups at all or raise
+            an exception if there are more than two groups.
+        """
+        match = re.search(rule, act, flags=self._flags)
+        
+        if match:
+            keys = list(match.groupdict().keys())
+            if len(keys) == 0:
+                return match.group()
+            elif len(keys) > 1:
+                raise ValueError("Named regex must have AT MOST ONE NAMED GROUP.")
+            if self._debug:
+                print('key: ', keys[0])
+            return match.group(keys[0]),
+        else:
+            return "nan"
+
+
+    def _acts_props(self):
+        acts = []
+        for raw in self._raw_acts:
+            act = self._act_props(raw)
+            acts.append(act)
+        if self._extra_search:
+            self._get_special_acts(acts)
+        return acts      
+
+
+    def _extract_instances(self) -> List[Match]:
+        found = self._find_instances()
+        self._acts_str = found.copy()
+        return found
 
 
     def _run_property_extraction(self):
@@ -138,7 +208,7 @@ class Cessoes:
         onus_lis = []
         siape_lis = []
         # orgao_cessionario = [] # HARD
-        for idx, tex in enumerate(self._nocrosswords_matches):
+        for idx, tex in enumerate(self._raw_acts):
             interessado = re.search(INTERESSADO, tex.group())
             nome = re.search(SERVIDOR_NOME_COMPLETO, tex.group())
             matricula = re.search(MATRICULA, tex.group()) or \
@@ -190,44 +260,12 @@ class Cessoes:
             onus_lis,
             siape_lis,
         ))
-        if len(l) != len(self._nocrosswords_matches):
+        if len(l) != len(self._raw_matches):
             raise Exception("Processed matches and list of attributes differ! {} vs {}".format(
-                len(self._nocrosswords_matches), len(l)
+                len(self._raw_matches), len(l)
             ))
         return l
 
-
     def _build_dataframe(self):
-        def by_group_name(match):
-            """Returns named group, or the whole match if no named groups
-                    are present on the match.
-            Args:
-                match: a re.Match object
-            Returns: content of the unique named group found at match,
-                the whole match if there are no groups at all or raise
-                an exception if there are more than two groups.
-            """
-            if match:
-                keys = list(match.groupdict().keys())
-                if len(keys) == 0:
-                    return match.group()
-                elif len(keys) > 1:
-                    raise ValueError("Named regex must have AT MOST ONE NAMED GROUP.")
-                if self._debug:
-                    print('key: ', keys[0])
-                return match.group(keys[0])
-            else:
-                return "nan"
+        return pd.DataFrame(self._acts)
 
-        return pd.DataFrame(
-            data=map(lambda lis: [by_group_name(i) for i in lis],self._final_matches),
-            columns=[
-                'interessado',
-                'nome',
-                'matricula',
-                'cargo_efetivo',
-                'processo',
-                'onus',
-                'siape',
-            ]
-        )
