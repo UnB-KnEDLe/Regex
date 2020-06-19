@@ -1,8 +1,5 @@
 import pandas as pd
 import re
-# import spacy
-
-# nlp=spacy.load('pt_core_news_sm')
 
 def case_insensitive(s: str):
     """Returns regular expression similar to `s` but case careless.
@@ -19,6 +16,8 @@ def case_insensitive(s: str):
 
 
 DODF = r"(DODF|[Dd]i.rio\s+[Oo]ficial\s+[Dd]o\s+[Dd]istrito\s+[Ff]ederal)"
+_EDICAO_DODF = r"(?P<edition>[Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
+DODF_TIPO_EDICAO = DODF + r"(?P<tipo_edicao>.{0,50}?)" + _EDICAO_DODF.replace("?P<edition>",'')
 
 MONTHS_LOWER = (
     r'(janeiro|fevereiro|mar.o|abril|maio|junho|' \
@@ -38,22 +37,20 @@ MATRICULA_GENERICO = r"(?<![^\s])(?P<matricula>([-\d.XxZzYz/\s]{1,})[.-][\dXxYy]
 
 MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-Z]{3})\s*,\s+([-\d.XxZzYz/\s]{3,}?),"
 
-# WARNING: "page_nums" may match not only nums.
-# TODO: deal with edge cases like "p 33". There are only a few ones.
 PAGE = r"((?:p\.|p.ginas?|p.?gs?\.?\b)(?P<page_nums>.{0,}?)(?=[,;:]|\n|\s[A-Z]|$))"
 
 SERVIDOR_NOME_COMPLETO = r"servidora?\b.{0,40}?(?P<name>[A-ZÀ-Ž][.'A-ZÀ-Ž\s]{7,})"
 
 NOME_COMPLETO = r"(?P<name>[.'A-ZÀ-Ž\s]{8,})"
 
-EDICAO_DODF = r"(?P<edition>[Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
+
 
 LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
 UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 
 PROCESSO = r"(?P<processo>[-0-9/.]+)"
 
-TIPO_DOCUMENTO = r"(portaria|ordem de servi.o|instrucao)"
+TIPO_DOCUMENTO = r"(portaria|ordem de servi.o|instru..o)"
 
 class SemEfeitoAposentadoria:
     _name = "Atos Tornados sem Efeito (aposentadoria)"
@@ -67,7 +64,6 @@ class SemEfeitoAposentadoria:
     _BAD_MATCH_WORDS = [
         "AVERBAR",
         "NOMEAR",
-        # "CONCEDER ABONO DE PERMANENCIA",
         "CONCEDER",
         "EXONERAR",
         "DESAVERBAR",
@@ -163,16 +159,14 @@ class SemEfeitoAposentadoria:
         edicoes = []
         for tex in self._processed_text:
             tipo = re.search(TIPO_DOCUMENTO, tex[len("TORNAR SEM EFEITO"):], re.IGNORECASE)
-            tipo_lis.append(tipo)
+
             processo = re.search(
                 r"{}:?[^\d]{}(?P<processo>\d[-0-9./\s]*\d(?!\d))".format(case_insensitive("processo"), "{0,50}?",PROCESSO),
-                tex)
-            processo_lis.append(processo)
+                tex)            
 
             
             # First, get DODF date.
             date_mt = re.search(DODF_DATE, tex)
-            dodf_dates.append(date_mt)
             if date_mt:
                 # seach for DODF num
                 num = re.search(DODF_NUM, date_mt.group())
@@ -253,32 +247,23 @@ class SemEfeitoAposentadoria:
             servidor_matricula.append(matricula)
 
             cargo_efetivo_lis.append(cargo)
-            _ = DODF + r".{0,50}?" + EDICAO_DODF
-            edicao = re.search(_, tex)
-
-            if edicao:
-                if re.search(r"\bextra\b", tex, re.IGNORECASE):
-                    edicoes.append(re.search(r"\bextra\b", tex))
-                elif re.search("\bsuplement(ar|o)\b", tex, re.IGNORECASE):
-                    edicoes.append( re.search("\bsuplement(ar|o)\b", tex) )
-                else:
-                    edicoes.append( self._self_match("tipo-estranho", "edition") )
+            _ = DODF + r".{0,50}?" + _EDICAO_DODF
+            edicao = re.search(DODF_TIPO_EDICAO, tex)
+            if edicao == None and edicao == re.search(_, tex): 
+                pass
             else:
-                edicoes.append(self._self_match("normal", "edition"))
-        if self._debug:
-            print(
-                "tipo_lis:", len(tipo_lis), '\n',
-                "processo_lis:", len(processo_lis), '\n',
-                "dodf_dates:", len(dodf_dates), '\n',
-                "dodf_num:", len(dodf_num), '\n',
-                "tornado_sem_dates:", len(tornado_sem_dates), '\n',
-                "pages:", len(pages), '\n',
-                "servidor_nome:", len(servidor_nome), '\n',
-                "servidor_matricula:", len(servidor_matricula), '\n',
-                "cargo_efetivo:", len(cargo_efetivo_lis), '\n',
-                "edicoes:", len(edicoes), '\n'
+                assert re.search(_, tex).group() == edicao.group()
+            if edicao:
+                edicao = re.search(r"\b(?P<tipo>extra|suplement(ar|o))\b", tex)                
+                edicao = edicao or self._self_match("tipo-estranho", "edition")
+            else:
+                edicao = self._self_match("normal", "edition")
 
-            )
+            dodf_dates.append(date_mt)            
+            edicoes.append(edicao)
+            tipo_lis.append(tipo)
+            processo_lis.append(processo)
+
         l = list(zip(
             tipo_lis,
             processo_lis,
@@ -291,10 +276,10 @@ class SemEfeitoAposentadoria:
             cargo_efetivo_lis,
             edicoes
         ))
-        if len(l) != len(self._processed_text):
-            raise Exception("Processed matches and list of attributes differ! {} vs {}".format(
-                len(self._processed_text), len(l)
-            ))
+        # if len(l) != len(self._processed_text):
+        #     raise Exception("Processed matches and list of attributes differ! {} vs {}".format(
+        #         len(self._processed_text), len(l)
+        #     ))
         return l
 
 
