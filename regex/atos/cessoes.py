@@ -30,26 +30,14 @@ MONTHS_LOWER = (
     r'julho|agosto|setembro|outubro|novembro|dezembro)'
 )
 
-FLEX_DATE = r"(?P<date>\d+\s+(?:de\s*)?{}\s*(?:de\s*)?\d+|\d+[.]\d+[.]\d+|\d+[/]\d+[/]\d+)".format(case_insensitive(MONTHS_LOWER))
-
-DODF_NUM = r"(DODF|[Dd]i.rio [Oo]ficial [Dd]o [Dd]istrito [Ff]ederal)\s*(n?r?o?[^\d]?)(?P<num>\d+)"
-DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
-
 SIAPE = r"{}\s*(?:n?.?)\s*(?P<siape>[-\d.Xx/\s]+)".format(case_insensitive("siape"))
 
 MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+(?P<matricula>[-\d.XxZzYz/\s]+)"
 MATRICULA_GENERICO = r"(?<![^\s])(?P<matricula>([-\d.XxZzYz/\s]{1,})[.-][\dXxYy][^\d])"
 MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-Z]{3})\s*,\s+(?P<matricula>[-\d.XxZzYz/\s]{3,}?),"
 
-# WARNING: "page_nums" may match not only nums.
-# TODO: deal with edge cases like "p 33". There are only a few ones.
-PAGE = r"((?:p\.|p.ginas?|p.?gs?\.?\b)(?P<page_nums>.{0,}?)(?=[,;:]|\n|\s[A-Z]|$))"
-
 SERVIDOR_NOME_COMPLETO = r"(servidor.?|empregad.)[^A-ZÀ-Ž]{0,40}(?P<name>[A-ZÀ-Ž][.'A-ZÀ-Ž\s]{6,}(?=[,]))"
-
 NOME_COMPLETO = r"(?P<name>['A-ZÀ-Ž][.'A-ZÀ-Ž\s]{6,}(?=[,.:;]))"
-
-EDICAO_DODF = r"(?P<edition>[Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
 
 PROCESSO_NUM = r"(?P<processo>[-0-9/.]+)"
 INTERESSADO = r"{}:\s*{}".format(case_insensitive("interessad."), NOME_COMPLETO)
@@ -67,10 +55,6 @@ class Cessoes(Atos):
         self._raw_matches = []
         super().__init__(file)
 
-
-    @classmethod
-    def _self_match(cls, s:str, group_name: str):
-        return re.match(fr'(?P<{group_name}>{s})', s)
 
     def _act_name(self):
         return "Cessoes"
@@ -100,29 +84,15 @@ class Cessoes(Atos):
         }
 
 
-    @property
-    def data_frame(self):
-        return self._data_frame
-
-    @property
-    def name(self):
-        return self._name
-
-
-    @property
-    def acts_str(self):
-        return self._acts_str
-
-
     def _find_instances(self) -> List[Match]:
         """Returns list of re.Match objects found on `self._text_no_crosswords`.
 
         Return:
             a list with all re.Match objects resulted from searching for
         """
-        text = remove_crossed_words( self._text )
+
         self._raw_matches = list(
-            re.finditer(self._inst_rule, text, flags=self._flags)
+            re.finditer(self._inst_rule, self._processed_text, flags=self._flags)
         )
         l = [i.group() for i in self._raw_matches]
         if self._debug:
@@ -188,83 +158,6 @@ class Cessoes(Atos):
         found = self._find_instances()
         self._acts_str = found.copy()
         return found
-
-
-    def _run_property_extraction(self):
-        """Effectively extracts que information it was supposed to extract.
-        For more details check "TCDF_requisitos" for KnEDLe project.
-
-        Note:
-            WARNING: this function tends to be very extense.
-                Maybe a pipepilne-like approach would be better
-                but haven't figured how to do so (yet).
-        """
-        # DODF date usually is easily extracted.
-        interessado_nome = []
-        servidor_nome = []
-        servidor_matricula = []
-        cargo_efetivo_lis = []
-        processo_lis = []
-        onus_lis = []
-        siape_lis = []
-        # orgao_cessionario = [] # HARD
-        for idx, tex in enumerate(self._raw_acts):
-            interessado = re.search(INTERESSADO, tex.group())
-            nome = re.search(SERVIDOR_NOME_COMPLETO, tex.group())
-            matricula = re.search(MATRICULA, tex.group()) or \
-                        re.search(MATRICULA_GENERICO, tex.group()) or \
-                        re.search(MATRICULA_ENTRE_VIRGULAS, tex.group())
-            processo = re.search(r"[^0-9]+?{}".format(PROCESSO_NUM), tex.group())
-            onus = re.search(ONUS, tex.group())
-            siape = re.search(SIAPE, tex.group())
-        
-            if not matricula or not nome:
-                cargo = None
-            else:
-                # TODO: improve robustness: cargo_efetivo is assumed to be either right after 
-                # employee name or its matricula
-                if 0 <= (matricula.start() - nome.end()) <= 5:
-                    # cargo NAO CABE entre 'servidor' e 'matricula'
-                    print("CARGO DEPOIS DE MATRICULA em",
-                            str(self._file_name).split('/')[-1])
-                    cargo = re.search(r",(?P<cargo>[^,]+)", tex.group()[ matricula.end()-1: ])        
-                else:
-                    # cargo apohs nome do servidor
-                    print("CARGO ANTES DE MATRICULA em",
-                            str(self._file_name).split('/')[-1])
-                    cargo = re.search(r",(?P<cargo>[^,]+)", tex.group()[nome.end()-1:])
-
-            interessado_nome.append(interessado)
-            servidor_nome.append(nome)
-            servidor_matricula.append(matricula)
-            cargo_efetivo_lis.append(cargo)
-            processo_lis.append(processo)
-            onus_lis.append(onus)
-            siape_lis.append(siape)
-        if self._debug:
-            print(
-                "interessado_nome:", len(interessado_nome), '\n',
-                "servidor_nome:", len(servidor_nome), '\n',
-                "servidor_matricula:", len(servidor_matricula), '\n',
-                "cargo_efetivo_lis:", len(cargo_efetivo_lis), '\n',
-                "processo_lis:", len(processo_lis), '\n',
-                "onus_lis:", len(onus_lis), '\n',
-                "siape_lis:", len(siape_lis), '\n',
-            )
-        l = list(zip(
-            interessado_nome,
-            servidor_nome,
-            servidor_matricula,
-            cargo_efetivo_lis,
-            processo_lis,
-            onus_lis,
-            siape_lis,
-        ))
-        if len(l) != len(self._raw_matches):
-            raise Exception("Processed matches and list of attributes differ! {} vs {}".format(
-                len(self._raw_matches), len(l)
-            ))
-        return l
 
     def _build_dataframe(self):
         return pd.DataFrame(self._acts)
