@@ -17,6 +17,7 @@ def case_insensitive(s: str):
 
 DODF = r"(DODF|[Dd]i.rio\s+[Oo]ficial\s+[Dd]o\s+[Dd]istrito\s+[Ff]ederal)"
 _EDICAO_DODF = r"(?P<edition>[Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
+TIPO_EDICAO = r"\b(?P<tipo>extra|suplement(ar|o))\b"
 DODF_TIPO_EDICAO = DODF + r"(?P<tipo_edicao>.{0,50}?)" + _EDICAO_DODF.replace("?P<edition>",'')
 
 MONTHS_LOWER = (
@@ -45,11 +46,12 @@ NOME_COMPLETO = r"(?P<name>[.'A-ZÀ-Ž\s]{8,})"
 
 
 
+
 LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
 UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 
 PROCESSO = r"(?P<processo>[-0-9/.]+)"
-
+PROCESSO_MATCH = r"{}:?[^\d]{}(?P<processo>\d[-0-9./\s]*\d(?!\d))".format(case_insensitive("processo"), "{0,50}?",PROCESSO)
 TIPO_DOCUMENTO = r"(portaria|ordem de servi.o|instru..o)"
 
 class SemEfeitoAposentadoria:
@@ -158,111 +160,81 @@ class SemEfeitoAposentadoria:
         cargo_efetivo_lis = []
         edicoes = []
         for tex in self._processed_text:
-            tipo = re.search(TIPO_DOCUMENTO, tex[len("TORNAR SEM EFEITO"):], re.IGNORECASE)
+            tipo = re.search(TIPO_DOCUMENTO, tex, re.IGNORECASE)
 
-            processo = re.search(
-                r"{}:?[^\d]{}(?P<processo>\d[-0-9./\s]*\d(?!\d))".format(case_insensitive("processo"), "{0,50}?",PROCESSO),
-                tex)            
+            processo = re.search(PROCESSO_MATCH, tex)
 
-            
             # First, get DODF date.
-            date_mt = re.search(DODF_DATE, tex)
-            if date_mt:
+            dodf_date = re.search(DODF_DATE, tex)
+            if dodf_date:
                 # seach for DODF num
-                num = re.search(DODF_NUM, date_mt.group())
-                if num:
-                    if self._debug:
-                        print('num.span():', num.span())
-                    # num = re.search(fr'(?P<num>{date_mt.group()})', date_mt.group())
-                dodf_num.append(num)
+                num = re.search(DODF_NUM, dodf_date.group())
+                if num and self._debug:
+                    print('num.span():', num.span())
 
-                # THEN lets search for publication date (heuristic)
-                span = date_mt.span()
-                removed_dodf_date = '{}{}'.format(tex[:span[0]], tex[span[1]:])
-                published_date = re.search(FLEX_DATE, removed_dodf_date)
-                tornado_sem_dates.append(published_date)
+                # publication date (heuristic)
+                start, end = dodf_date.start(), dodf_date.end()
+                removed_dodf_date = tex[:start] + tex[end:]
+                published_date = re.search(FLEX_DATE, removed_dodf_date)                
                 # ALSO, page numbers (if present) come right after DODF date
-                window = tex[span[1]:][:50]
-                page = re.search(PAGE, window)                
-                pages.append(page)
+                window = tex[end:][:50]
+                page = re.search(PAGE, window)
+                del window, removed_dodf_date, start, end
 
             else:
-                tornado_sem_dates.append(None)
-                dodf_num.append(None)
-                pages.append(None)
+                published_date = None
+                num = None                
+                page = None
             # Try to match employee
             servidor = re.search(SERVIDOR_NOME_COMPLETO, tex)
             if self._debug:
                 print("SERVIDOR:", servidor)
             if not servidor:
-                if self._debug:
-                    print("SEM SERVIDOR!!!")
                 #  If it fails then a more generic regex is searched for
-                dodf_span = re.search(DODF, tex).span()
+                dodf_end = re.search(DODF, tex).end()
                 # therefore `servidor` is not trustable when comes to start/end
-                servidor = re.search(NOME_COMPLETO, tex[dodf_span[1]:])
+                servidor = re.search(NOME_COMPLETO, tex[dodf_end:])
                 if not servidor:
                     # Appeal to spacy
-                    all_cands = re.findall(
-                        r"{}".format(NOME_COMPLETO),
-                        tex
-                    )
-                    print("ALL_CANDS:", all_cands)
-                    # print('\t(', *all_cands, sep=')\n\t(', end=')\n\n')
-                    person_cands = []
+                    all_cands = re.findall(NOME_COMPLETO, tex)
                     for cand in self.nlp(', '.join([c.strip().title() for c in all_cands])).ents:
                         if cand.label_ == 'PER':
                             print(cand, 'IS THE PERSON')
                             break
                     servidor =  re.search(cand.text.upper(), tex)
-            servidor_nome.append(servidor)
             
-            if servidor:
-                matricula = re.search(MATRICULA, tex[servidor.end():])
-                if not matricula:
-                    matricula = re.search(MATRICULA_GENERICO, tex[servidor.end():])
-                    if not matricula:
-                        matricula = re.search(MATRICULA_ENTRE_VIRGULAS, tex[servidor.end():] )
-            else:
-                matricula = None
+            matricula = re.search(MATRICULA, tex[servidor.end():]) or \
+                        re.search(MATRICULA_GENERICO, tex[servidor.end():]) or \
+                        re.search(MATRICULA_ENTRE_VIRGULAS, tex[servidor.end():] )
 
             if not matricula or not servidor:
                 cargo = None
             else:
-                # TODO: improve robustness: cargo_efetivo is assumed to be either right after 
-                # employee name or its matricula
+                # cargo_efetivo is assumed to be either right after employee name or its matricula
                 servidor = re.search(servidor.group(), tex)
                 matricula = re.search(matricula.group(), tex)
-                print("matricula.start() - servidor.end():", matricula.start() - servidor.end())
                 # NOTE: -1 is important in case `matricula` end with `,`
                 if 0 <= (matricula.start() - servidor.end()) <= 5:
-                    # cargo NAO CABE entre 'servidor' e 'matricula'
-                    print("CARGO DEPOIS DE MAATRICULA")
+                    # cargo doen not fit between 'servidor' e 'matricula'
                     cargo = re.search(r",(?P<cargo>[^,]+)", tex[ matricula.end()-1: ])        
                 else:
-                    # cargo apohs nome do servidor
-                    print("CARGO ANTES DE MATRICULA")
+                    # cargo right after employee's name
                     cargo = re.search(r",(?P<cargo>[^,]+)", tex[servidor.end()-1:])
-            print("MATRICULA FINAL:", matricula.group())
-            servidor_matricula.append(matricula)
 
-            cargo_efetivo_lis.append(cargo)
-            _ = DODF + r".{0,50}?" + _EDICAO_DODF
             edicao = re.search(DODF_TIPO_EDICAO, tex)
-            if edicao == None and edicao == re.search(_, tex): 
-                pass
-            else:
-                assert re.search(_, tex).group() == edicao.group()
-            if edicao:
-                edicao = re.search(r"\b(?P<tipo>extra|suplement(ar|o))\b", tex)                
-                edicao = edicao or self._self_match("tipo-estranho", "edition")
-            else:
-                edicao = self._self_match("normal", "edition")
 
-            dodf_dates.append(date_mt)            
-            edicoes.append(edicao)
+            edicao = re.search(TIPO_EDICAO, tex) if edicao else re.search("normal", "normal")
+
             tipo_lis.append(tipo)
             processo_lis.append(processo)
+            dodf_dates.append(dodf_date)            
+            dodf_num.append(num)
+            tornado_sem_dates.append(published_date)
+            pages.append(page)
+            servidor_nome.append(servidor)
+            servidor_matricula.append(matricula)
+            cargo_efetivo_lis.append(cargo)
+            edicoes.append(edicao)
 
         l = list(zip(
             tipo_lis,
@@ -276,10 +248,10 @@ class SemEfeitoAposentadoria:
             cargo_efetivo_lis,
             edicoes
         ))
-        # if len(l) != len(self._processed_text):
-        #     raise Exception("Processed matches and list of attributes differ! {} vs {}".format(
-        #         len(self._processed_text), len(l)
-        #     ))
+        if len(l) != len(self._processed_text):
+            raise Exception("Processed matches and list of attributes differ! {} vs {}".format(
+                len(self._processed_text), len(l)
+            ))
         return l
 
 
