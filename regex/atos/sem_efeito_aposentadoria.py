@@ -1,59 +1,42 @@
 import pandas as pd
 import re
 
-def case_insensitive(s: str):
-    """Returns regular expression similar to `s` but case careless.
-
-    Note: strings containing characters set, as `[ab]` will be transformed to `[[Aa][Bb]]`.
-        `s` is espected to NOT contain situations like that.
-    Args:
-        s: the stringregular expression string to be transformed into case careless
-    Returns:
-        the new case-insensitive string 
-    """
-
-    return ''.join([c if not c.isalpha() else '[{}{}]'.format(c.upper(), c.lower()) for c in s])
-
 
 DODF = r"(DODF|[Dd]i.rio\s+[Oo]ficial\s+[Dd]o\s+[Dd]istrito\s+[Ff]ederal)"
-_EDICAO_DODF = r"(?P<edition>\b(?i:suplement(o|ar)|extra|.ntegra))\b."
+_EDICAO_DODF = r"(\b(?i:suplement(o|ar)|extra|.ntegra))\b."
 TIPO_EDICAO = r"\b(?P<tipo>(?i:extra(\sespecial)?|suplement(ar|o)))\b"
-DODF_TIPO_EDICAO = DODF + r"(?P<tipo_edicao>.{0,50}?)" + _EDICAO_DODF.replace("?P<edition>",'')
+DODF_TIPO_EDICAO = DODF + r"(?P<tipo_edicao>.{0,50}?)" + _EDICAO_DODF
 
-MONTHS_LOWER = (
-    r'(janeiro|fevereiro|mar.o|abril|maio|junho|' \
+MONTHS = (
+    r'(?i:janeiro|fevereiro|mar.o|abril|maio|junho|' \
     r'julho|agosto|setembro|outubro|novembro|dezembro)'
 )
 
-FLEX_DATE = r"(?P<date>\d+\s+(?:de\s*)?{}\s*(?:de\s*)?\d+|\d+[.]\d+[.]\d+|\d+[/]\d+[/]\d+)".format(case_insensitive(MONTHS_LOWER))
+FLEX_DATE = r"(?P<date>\d+\s+(?:de\s*)?" + MONTHS + "\s*(?:de\s*)?\d+|\d+[.]\d+[.]\d+|\d+[/]\d+[/]\d+)"
 
-DODF_NUM = r"(DODF|[Dd]i.rio [Oo]ficial [Dd]o [Dd]istrito [Ff]ederal)\s*(n?r?o?[^\d]?)(?P<num>\d+)"
 DODF_NUM = r"(?i:DODF|[Dd]i.rio [Oo]ficial [Dd]o [Dd]istrito [Ff]ederal)\s*[\w\W]{0,3}?(?i:n?(.mero|[.roº]{1,4})?[^\d]+?)(?P<num>\d+)"
 
-DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
+DODF_DATE = DODF + r"[^\n\n]{0,50}?(de\s?)?" + FLEX_DATE
 
-SIAPE = r"{}\s*(?:n?.?)\s*[-\d.Xx/\s]".format(case_insensitive("siape"))
+SIAPE = r"(?i:siape)\s*(?i:n?.?)\s*[-\d.Xx/\s]"
 
-MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+(?P<matricula>[-\d.XxZzYz/\s]+)"
+MATRICULA = r"(?i:matr.cul.|matr?[.]?\B)[^\d]+(?P<matricula>[-\d.XxZzYz/\s]+)"
 
 MATRICULA_GENERICO = r"(?<![^\s])(?P<matricula>([-\d.XxZzYz/\s]{1,})[.-][\dXxYy][^\d])"
 
-MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-Z]{3})\s*,\s+([-\d.XxZzYz/\s]{3,}?),"
+MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-ZÀ-Ž]{3})\s*,\s+([-\d.XxZzYz/\s]{3,}?),"
 
-PAGE = r"((?:p\.|p.ginas?|p.?gs?\.?\b)(?P<page_nums>.{0,}?)(?=[,;:]|\n|\s[A-Z]|$))"
+PAGE = r"((?i:p\.|p.ginas?|p.?gs?\.?\b)(?P<page_nums>.{0,}?)(?=[,;:]|\n|\s[A-Z]|$))"
 
-SERVIDOR_NOME_COMPLETO = r"servidora?\b.{0,40}?(?P<name>[A-ZÀ-Ž][.'A-ZÀ-Ž\s]{7,})"
+SERVIDOR_NOME_COMPLETO = r"(?i:servidora?\b.{0,40}?)(?P<name>[A-ZÀ-Ž][.'A-ZÀ-Ž\s]{7,})"
 
 NOME_COMPLETO = r"(?P<name>[.'A-ZÀ-Ž\s]{8,})"
-
-
 
 
 LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
 UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 
-PROCESSO = r"(?P<processo>[-0-9/.]+)"
-PROCESSO_MATCH = r"{}:?[^\d]{}(?P<processo>\d[-0-9./\s]*\d(?!\d))".format(case_insensitive("processo"), "{0,50}?",PROCESSO)
+PROCESSO_MATCH = r"(?i:processo):?[^\d]{0,50}?(?P<processo>\d[-0-9./\s]*\d(?!\d))"
 TIPO_DOCUMENTO = r"(?i:portaria|ordem de servi.o|instru..o)"
 
 class SemEfeitoAposentadoria:
@@ -92,10 +75,6 @@ class SemEfeitoAposentadoria:
         self._final_matches = self._run_property_extraction()
         
         self._data_frame = self._build_dataframe()
-    @classmethod
-    def _self_match(cls, s:str, group_name: str):
-        return re.match(fr'(?P<{group_name}>{s})', s)
-
 
     @property
     def data_frame(self):
@@ -108,10 +87,6 @@ class SemEfeitoAposentadoria:
     @property
     def acts_str(self):
         return self._processed_text    
-
-    @property
-    def props(self):
-        return self._final_matches
 
 
     def _extract_raw_matches(self):
@@ -166,72 +141,51 @@ class SemEfeitoAposentadoria:
         for tex in self._processed_text:
             tipo = re.search(TIPO_DOCUMENTO, tex)
             processo = re.search(PROCESSO_MATCH, tex)
-            # First, get DODF date.
             dodf_date = re.search(DODF_DATE, tex)
-
-            if dodf_date:
-                # seach for DODF num
-                num = re.search(DODF_NUM, dodf_date.group())
-                if num and self._debug:
-                    print('num.span():', num.span())
-
-                # publication date (heuristic)
-                start, end = dodf_date.start(), dodf_date.end()
-                removed_dodf_date = tex[:start] + tex[end:]
-                published_date = re.search(FLEX_DATE, removed_dodf_date)                
-                # ALSO, page numbers (if present) come right after DODF date
-                window = tex[end:][:50]
-                page = re.search(PAGE, window)
-                del window, removed_dodf_date, start, end
-
-            else:
-                # published_date = None
-                # num = None                
-                # page = None
-
-                num = dodf_date and re.search(DODF_NUM, dodf_date.group())         
-                published_date = dodf_date and \
-                    re.search(FLEX_DATE, tex[:dodf_date.start()] + tex[dodf_date.end():])
-                page = dodf_date and re.search(PAGE, tex[dodf_date.end()][:50])
-            # Try to match employee
+            num = dodf_date and re.search(DODF_NUM, dodf_date.group())         
+            published_date = dodf_date and \
+                re.search(FLEX_DATE, tex[:dodf_date.start()] + tex[dodf_date.end():])
+            page = dodf_date and re.search(PAGE, tex[dodf_date.end():][:50])
             servidor = re.search(SERVIDOR_NOME_COMPLETO, tex)
 
             if not servidor:
                 #  If it fails then a more generic regex is searched for
                 dodf_mt = re.search(DODF, tex)
                 dodf_end = 0 if not dodf_mt else dodf_mt.end()
-                # therefore `servidor` is not trustable when comes to start/end
                 servidor = re.search(NOME_COMPLETO, tex[dodf_end:])
+                del dodf_mt, dodf_end
                 if not servidor:
                     # Appeal to spacy
                     all_cands = re.findall(NOME_COMPLETO, tex)
-                    cand_text = 'sem-servidor'
+                    cand_text = 'SEM-SERVIDOR'
                     for cand in self.nlp(', '.join([c.strip().title() for c in all_cands])).ents:
                         cand_text = cand.text                
                         if cand.label_ == 'PER':
                             break
                     servidor =  re.search(cand_text.upper(), tex)
+                    del all_cands, cand_text, cand
             end_employee = servidor.end() if servidor else 0
             matricula = re.search(MATRICULA, tex[end_employee:]) or \
                         re.search(MATRICULA_GENERICO, tex[end_employee:]) or \
                         re.search(MATRICULA_ENTRE_VIRGULAS, tex[end_employee:] ) 
-
+            del end_employee
 
             if not matricula or not servidor:
                 cargo = None
             else:
-                servidor = re.search(re.escape(servidor.group()), tex)
-                matricula = re.search(re.escape(matricula.group()), tex)
-                # NOTE: -1 is important in case `matricula` end with `,`
-                if 0 <= (matricula.start() - servidor.end()) <= 5:
-                    # cargo doen not fit between 'servidor' e 'matricula'
-                    cargo = re.search(r",(?P<cargo>[^,]+)", tex[ matricula.end()-1: ])        
-                else:
-                    # cargo right after employee's name
-                    cargo = re.search(r",(?P<cargo>[^,]+)", tex[servidor.end()-1:])
+                servidor_start = tex[servidor.start():].find(servidor.group()) + servidor.start()
+                matricula_start = tex[matricula.start():].find(matricula.group()) + matricula.start()
 
+                # NOTE: -1 is important in case `matricula` end with `,`
+                if 0 <= (matricula_start - (servidor_start + len(servidor.group()))) <= 5:
+                    # cargo does not fit between 'servidor' e 'matricula'
+                    cargo = re.search(r",(?P<cargo>[^,]+)", tex[ matricula_start + len(matricula.group())-1: ])        
+                else:
+                    # cargo right after employee's name                    
+                    cargo = re.search(r",(?P<cargo>[^,]+)", tex[servidor_start + len(servidor.group())-1:])
+                del matricula_start, servidor_start
             edicao = re.search(DODF_TIPO_EDICAO, tex)
-            edicao = re.search(TIPO_EDICAO, tex[:edicao.end()+1]) if edicao \
+            edicao = re.search(TIPO_EDICAO, tex[edicao.start()-1:edicao.end()+1]) if edicao \
                         else re.search("normal", "normal")
 
             tipo_lis.append(tipo)
