@@ -16,8 +16,8 @@ def case_insensitive(s: str):
 
 
 DODF = r"(DODF|[Dd]i.rio\s+[Oo]ficial\s+[Dd]o\s+[Dd]istrito\s+[Ff]ederal)"
-_EDICAO_DODF = r"(?P<edition>[Ss]uplement(o|ar)|[Ee]xtra|.ntegra)"
-TIPO_EDICAO = r"\b(?P<tipo>extra|suplement(ar|o))\b"
+_EDICAO_DODF = r"(?P<edition>\b(?i:suplement(o|ar)|extra|.ntegra))\b."
+TIPO_EDICAO = r"\b(?P<tipo>(?i:extra(\sespecial)?|suplement(ar|o)))\b"
 DODF_TIPO_EDICAO = DODF + r"(?P<tipo_edicao>.{0,50}?)" + _EDICAO_DODF.replace("?P<edition>",'')
 
 MONTHS_LOWER = (
@@ -28,6 +28,8 @@ MONTHS_LOWER = (
 FLEX_DATE = r"(?P<date>\d+\s+(?:de\s*)?{}\s*(?:de\s*)?\d+|\d+[.]\d+[.]\d+|\d+[/]\d+[/]\d+)".format(case_insensitive(MONTHS_LOWER))
 
 DODF_NUM = r"(DODF|[Dd]i.rio [Oo]ficial [Dd]o [Dd]istrito [Ff]ederal)\s*(n?r?o?[^\d]?)(?P<num>\d+)"
+DODF_NUM = r"(?i:DODF|[Dd]i.rio [Oo]ficial [Dd]o [Dd]istrito [Ff]ederal)\s*[\w\W]{0,3}?(?i:n?(.mero|[.roº]{1,4})?[^\d]+?)(?P<num>\d+)"
+
 DODF_DATE = r"{}[^\n\n]{{0,50}}?(de\s?)?{}".format(DODF, FLEX_DATE)
 
 SIAPE = r"{}\s*(?:n?.?)\s*[-\d.Xx/\s]".format(case_insensitive("siape"))
@@ -52,7 +54,7 @@ UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 
 PROCESSO = r"(?P<processo>[-0-9/.]+)"
 PROCESSO_MATCH = r"{}:?[^\d]{}(?P<processo>\d[-0-9./\s]*\d(?!\d))".format(case_insensitive("processo"), "{0,50}?",PROCESSO)
-TIPO_DOCUMENTO = r"(portaria|ordem de servi.o|instru..o)"
+TIPO_DOCUMENTO = r"(?i:portaria|ordem de servi.o|instru..o)"
 
 class SemEfeitoAposentadoria:
     _name = "Atos Tornados sem Efeito (aposentadoria)"
@@ -110,6 +112,8 @@ class SemEfeitoAposentadoria:
     @property
     def props(self):
         return self._final_matches
+
+
     def _extract_raw_matches(self):
         """Returns list of re.Match objects found on `self._text`.
 
@@ -160,12 +164,11 @@ class SemEfeitoAposentadoria:
         cargo_efetivo_lis = []
         edicoes = []
         for tex in self._processed_text:
-            tipo = re.search(TIPO_DOCUMENTO, tex, re.IGNORECASE)
-
+            tipo = re.search(TIPO_DOCUMENTO, tex)
             processo = re.search(PROCESSO_MATCH, tex)
-
             # First, get DODF date.
             dodf_date = re.search(DODF_DATE, tex)
+
             if dodf_date:
                 # seach for DODF num
                 num = re.search(DODF_NUM, dodf_date.group())
@@ -182,37 +185,43 @@ class SemEfeitoAposentadoria:
                 del window, removed_dodf_date, start, end
 
             else:
-                published_date = None
-                num = None                
-                page = None
+                # published_date = None
+                # num = None                
+                # page = None
+
+                num = dodf_date and re.search(DODF_NUM, dodf_date.group())         
+                published_date = dodf_date and \
+                    re.search(FLEX_DATE, tex[:dodf_date.start()] + tex[dodf_date.end():])
+                page = dodf_date and re.search(PAGE, tex[dodf_date.end()][:50])
             # Try to match employee
             servidor = re.search(SERVIDOR_NOME_COMPLETO, tex)
-            if self._debug:
-                print("SERVIDOR:", servidor)
+
             if not servidor:
                 #  If it fails then a more generic regex is searched for
-                dodf_end = re.search(DODF, tex).end()
+                dodf_mt = re.search(DODF, tex)
+                dodf_end = 0 if not dodf_mt else dodf_mt.end()
                 # therefore `servidor` is not trustable when comes to start/end
                 servidor = re.search(NOME_COMPLETO, tex[dodf_end:])
                 if not servidor:
                     # Appeal to spacy
                     all_cands = re.findall(NOME_COMPLETO, tex)
+                    cand_text = 'sem-servidor'
                     for cand in self.nlp(', '.join([c.strip().title() for c in all_cands])).ents:
+                        cand_text = cand.text                
                         if cand.label_ == 'PER':
-                            print(cand, 'IS THE PERSON')
                             break
-                    servidor =  re.search(cand.text.upper(), tex)
-            
-            matricula = re.search(MATRICULA, tex[servidor.end():]) or \
-                        re.search(MATRICULA_GENERICO, tex[servidor.end():]) or \
-                        re.search(MATRICULA_ENTRE_VIRGULAS, tex[servidor.end():] )
+                    servidor =  re.search(cand_text.upper(), tex)
+            end_employee = servidor.end() if servidor else 0
+            matricula = re.search(MATRICULA, tex[end_employee:]) or \
+                        re.search(MATRICULA_GENERICO, tex[end_employee:]) or \
+                        re.search(MATRICULA_ENTRE_VIRGULAS, tex[end_employee:] ) 
+
 
             if not matricula or not servidor:
                 cargo = None
             else:
-                # cargo_efetivo is assumed to be either right after employee name or its matricula
-                servidor = re.search(servidor.group(), tex)
-                matricula = re.search(matricula.group(), tex)
+                servidor = re.search(re.escape(servidor.group()), tex)
+                matricula = re.search(re.escape(matricula.group()), tex)
                 # NOTE: -1 is important in case `matricula` end with `,`
                 if 0 <= (matricula.start() - servidor.end()) <= 5:
                     # cargo doen not fit between 'servidor' e 'matricula'
@@ -222,8 +231,8 @@ class SemEfeitoAposentadoria:
                     cargo = re.search(r",(?P<cargo>[^,]+)", tex[servidor.end()-1:])
 
             edicao = re.search(DODF_TIPO_EDICAO, tex)
-
-            edicao = re.search(TIPO_EDICAO, tex) if edicao else re.search("normal", "normal")
+            edicao = re.search(TIPO_EDICAO, tex[:edicao.end()+1]) if edicao \
+                        else re.search("normal", "normal")
 
             tipo_lis.append(tipo)
             processo_lis.append(processo)
