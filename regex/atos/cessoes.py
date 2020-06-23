@@ -23,28 +23,31 @@ def remove_crossed_words(s: str):
     return re.sub(r'-\s+', '', s)
 
 
+LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
+UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
+
 DODF = r"(DODF|[Dd]i.rio\s+[Oo]ficial\s+[Dd]o\s+[Dd]istrito\s+[Ff]ederal)"
 
-MONTHS_LOWER = (
-    r'(janeiro|fevereiro|mar.o|abril|maio|junho|' \
-    r'julho|agosto|setembro|outubro|novembro|dezembro)'
-)
-
 SIAPE = r"{}\s*(?:n?.?)\s*(?P<siape>[-\d.Xx/\s]+)".format(case_insensitive("siape"))
+# SIAPE = r"(?i:siape)\s*(?:n?.?)\s*(?P<siape>[-\d.Xx/\s]+)"
 
 MATRICULA = r"(?:matr.cul.|matr?[.]?\B)[^\d]+(?P<matricula>[-\d.XxZzYz/\s]+)"
+# MATRICULA = r"(?i:matr.cul.|matr?[.]?\B)[^\d]+(?P<matricula>[-\d.XxZzYz/\s]+)"
 MATRICULA_GENERICO = r"(?<![^\s])(?P<matricula>([-\d.XxZzYz/\s]{1,})[.-][\dXxYy][^\d])"
-MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-Z]{3})\s*,\s+(?P<matricula>[-\d.XxZzYz/\s]{3,}?),"
+MATRICULA_ENTRE_VIRGULAS = r"(?<=[A-ZÀ-Ž]{3})\s*,\s+(?P<matricula>[-\d.XxZzYz/\s]{3,}?),"
 
 SERVIDOR_NOME_COMPLETO = r"(servidor.?|empregad.)[^A-ZÀ-Ž]{0,40}(?P<name>[A-ZÀ-Ž][.'A-ZÀ-Ž\s]{6,}(?=[,]))"
+# SERVIDOR_NOME_COMPLETO = r"(?i:servidor.?|empregad.)[^A-ZÀ-Ž]{0,40}(?P<name>[A-ZÀ-Ž][.'A-ZÀ-Ž\s]{6,}(?=[,]))"
 NOME_COMPLETO = r"(?P<name>['A-ZÀ-Ž][.'A-ZÀ-Ž\s]{6,}(?=[,.:;]))"
 
 PROCESSO_NUM = r"(?P<processo>[-0-9/.]+)"
 INTERESSADO = r"{}:\s*{}".format(case_insensitive("interessad."), NOME_COMPLETO)
-ONUS = r"(?P<onus>\b[oôOÔ]{}\b[^.]+[.])".format(case_insensitive("nus"))
+# INTERESSADO = r"(?i:interessad.):\s*{}".format(NOME_COMPLETO)
+# INTERESSADO = r"(?i:interessad.):\s*" + NOME_COMPLETO
 
-LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
-UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
+ONUS = r"(?P<onus>\b[oôOÔ]{}\b[^.]+[.])".format(case_insensitive("nus"))
+# ONUS = r"(?P<onus>\b[oôOÔ](?i:(nus))\b[^.]+[.])"
+
 
 class Cessoes(Atos):
     _special_acts = ['matricula', 'cargo']
@@ -69,6 +72,7 @@ class Cessoes(Atos):
             + r"[^\n]*?[Aa]\s*[Ss]\s*[Ss]\s*[Uu]\s*[Nn]\s*[Tt]\s*[Oo]\s*:?\s*\bCESS.O\b"\
             + r"([^\n]*\n){0,}?[^\n]*?(?=(?P<look_ahead>PROCESSO|Processo:|PUBLICAR|pertinentes[.]|autoridade cedente|"\
             + case_insensitive('publique-se') + "))"
+            # + r'(?i:publique-se)' + "))"
         )
 
 
@@ -78,6 +82,7 @@ class Cessoes(Atos):
             'nome': SERVIDOR_NOME_COMPLETO,
             'matricula': MATRICULA,
             'processo': r"[^0-9]+?{}".format(PROCESSO_NUM),
+            # 'processo': r"[^0-9]+?" + PROCESSO_NUM,
             'onus': ONUS,
             'siape': SIAPE,
             'cargo': r",(?P<cargo>[^,]+)",
