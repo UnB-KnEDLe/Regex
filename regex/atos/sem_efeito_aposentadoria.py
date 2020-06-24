@@ -1,5 +1,7 @@
-import pandas as pd
 import re
+from typing import List, Match
+import pandas as pd
+from atos.base import Atos
 
 
 DODF = r"(DODF|[Dd]i.rio\s+[Oo]ficial\s+[Dd]o\s+[Dd]istrito\s+[Ff]ederal)"
@@ -32,21 +34,18 @@ SERVIDOR_NOME_COMPLETO = r"(?i:servidora?\b.{0,40}?)(?P<name>[A-ZÀ-Ž][.'A-ZÀ-
 
 NOME_COMPLETO = r"(?P<name>[.'A-ZÀ-Ž\s]{8,})"
 
-
 LOWER_LETTER = r"[áàâäéèẽëíìîïóòôöúùûüça-z]"
 UPPER_LETTER = r"[ÁÀÂÄÉÈẼËÍÌÎÏÓÒÔÖÚÙÛÜÇA-Z]"
 
 PROCESSO_MATCH = r"(?i:processo):?[^\d]{0,50}?(?P<processo>\d[-0-9./\s]*\d(?!\d))"
 TIPO_DOCUMENTO = r"(?i:portaria|ordem de servi.o|instru..o)"
 
-class SemEfeitoAposentadoria:
-    _name = "Atos Tornados sem Efeito (aposentadoria)"
-
-    _raw_pattern = (
-        r"TORNAR SEM EFEITO" + \
-        r"([^\n]+\n){0,10}?[^\n]*?(tempo\sde\sservi.o|aposentadoria|aposentou|([Dd][Ee][Ss])?[Aa][Vv][Ee][Rr][Bb][Aa]..[Oo]|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s" \
-        r"(?=[A-Z]{4})"
-    )
+class SemEfeitoAposentadoria(Atos):
+    _special_acts = [
+        'dodf_num', 'tornado_sem_efeito_publicacao', 
+        'dodf_pagina', 'servidor', 'matricula',
+        'cargo', 'dodf_tipo_edicao', 
+    ]
 
     _BAD_MATCH_WORDS = [
         "AVERBAR",
@@ -58,47 +57,177 @@ class SemEfeitoAposentadoria:
         "RETIFICAR",
     ]
 
-    def __init__(self,file_name, text=False, nlp=None, debug=False):
+
+    def _pre_process_text(self, s):
+        # Make sure words splitted accross lines are joined together
+        no_split_word = s.replace('-\n', '-')        
+        return no_split_word.replace('\n', ' ')
+
+
+    def __init__(self, file, debug=False, extra_search=True, nlp=None):
         self._debug = debug
-        self.nlp = nlp
-        if not text:
-            fp = open(file_name, "r")
-            self._file_name = file_name
-            self._text = fp.read()
-            fp.close()
-        else:
-            self._file_name = ''
-            self._text = file_name
-        
-        self._raw_matches = self._extract_raw_matches()
-        self._processed_text = self._post_process_raw()
-        self._final_matches = self._run_property_extraction()
-        
-        self._data_frame = self._build_dataframe()
+        self._extra_search = extra_search
+        self._processed_text = self._pre_process_text(open(file).read())
+        self._raw_matches = []
+        self._nlp = nlp
+        super().__init__(file)
 
-    @property
-    def data_frame(self):
-        return self._data_frame
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def acts_str(self):
-        return self._processed_text    
+    def _act_name(self):
+        return "Atos tornados sem efeito - aposentadoria"
 
 
-    def _extract_raw_matches(self):
-        """Returns list of re.Match objects found on `self._text`.
+    def _props_names(self):
+        return list(self._prop_rules())
+
+
+    def _rule_for_inst(self):
+        return (
+        r"TORNAR SEM EFEITO" + \
+        r"([^\n]+\n){0,10}?[^\n]*?(tempo\sde\sservi.o|aposentadoria|aposentou|([Dd][Ee][Ss])?[Aa][Vv][Ee][Rr][Bb][Aa]..[Oo]|(des)?averb(ar?|ou))[\d\D]{0,500}?[.]\s" +\
+        r"(?=[A-Z]{4})"
+    )
+
+    # TODO: UPDATE REULES!!!
+    def _prop_rules(self):
+        return {
+            'tipo_documento': TIPO_DOCUMENTO,
+            'processo': PROCESSO_MATCH,
+            'dodf_data': DODF_DATE,
+        }
+
+
+    def _find_instances(self) -> List[Match]:
+        """Returns list of re.Match objects found on `self._text_no_crosswords`.
 
         Return:
             a list with all re.Match objects resulted from searching for
         """
-        l = list(re.finditer(self._raw_pattern, self._text))
+        head = "TORNAR SEM EFEITO"
+        end = "CAFEBABE"
+
+        lis = self._processed_text.split(head)
+        lis = [
+            re.search(self._inst_rule, head + tex + end) \
+            for tex in lis[1:]]
+        lis = [i for i in lis if i]
+        self._raw_matches = lis
         if self._debug:
-            print("DEBUG:", len(l), 'matches')
-        return l
+            print("DEBUG:", len(lis), 'matches')
+        return [i.group() for i in lis]
+
+
+    # TODO: UPDATE WITH SEM EFEITO APOSENTADORIA SPECIFICITIES
+    def _get_special_acts(self, lis_dict):
+        for i, match in enumerate(self._raw_matches):
+            act = match.group()
+            curr_dict = lis_dict[i]
+            dodf_date = curr_dict['dodf_data']
+            dodf_num = dodf_date and re.search(DODF_NUM, dodf_date.group())
+            tornado_sem_efeito_publicacao = dodf_date and \
+                re.search(FLEX_DATE, act[:dodf_date.start()] + act[dodf_date.end():])
+            dodf_pagina = dodf_date and re.search(PAGE, act[dodf_date.end():][:50])
+
+            servidor = re.search(SERVIDOR_NOME_COMPLETO, act)
+            if not servidor:
+                #  If it fails then a more generic regex is searched for
+                dodf_mt = re.search(DODF, act)
+                dodf_end = 0 if not dodf_mt else dodf_mt.end()
+                servidor = re.search(NOME_COMPLETO, act[dodf_end:])
+                del dodf_mt, dodf_end
+                if not servidor:
+                    # Appeal to spacy
+                    all_cands = re.findall(NOME_COMPLETO, act)
+                    cand_text = 'SEM-SERVIDOR'
+                    for cand in self._nlp(', '.join([c.strip().title() for c in all_cands])).ents:
+                        cand_text = cand.text                
+                        if cand.label_ == 'PER':
+                            break
+                    servidor =  re.search(cand_text.upper(), act)
+                    del all_cands, cand_text, cand
+            end_employee = servidor.end() if servidor else 0
+            matricula = re.search(MATRICULA, act[end_employee:]) or \
+                        re.search(MATRICULA_GENERICO, act[end_employee:]) or \
+                        re.search(MATRICULA_ENTRE_VIRGULAS, act[end_employee:] ) 
+            del end_employee
+            if not matricula or not servidor:
+                cargo = None
+            else:
+                servidor_start = act[servidor.start():].find(servidor.group()) + servidor.start()
+                matricula_start = act[matricula.start():].find(matricula.group()) + matricula.start()
+
+                # NOTE: -1 is important in case `matricula` end with `,`
+                if 0 <= (matricula_start - (servidor_start + len(servidor.group()))) <= 5:
+                    # cargo does not fit between 'servidor' e 'matricula'
+                    cargo = re.search(r",(?P<cargo>[^,]+)", act[ matricula_start + len(matricula.group())-1: ])        
+                else:
+                    # cargo right after employee's name                    
+                    cargo = re.search(r",(?P<cargo>[^,]+)", act[servidor_start + len(servidor.group())-1:])
+                del matricula_start, servidor_start
+            edicao = re.search(DODF_TIPO_EDICAO, act)
+            dodf_tipo_edicao = re.search(TIPO_EDICAO, act[edicao.start()-1:edicao.end()+1])\
+                         if edicao else re.search("normal", "normal")
+            curr_dict['dodf_num'] = dodf_num
+            curr_dict['tornado_sem_efeito_publicacao'] = tornado_sem_efeito_publicacao
+            curr_dict['dodf_pagina'] = dodf_pagina
+            curr_dict['servidor'] = servidor
+            curr_dict['matricula'] = matricula
+            curr_dict['cargo'] = cargo            
+            curr_dict['dodf_tipo_edicao'] = dodf_tipo_edicao
+
+
+    def _find_props(self, rule, act):
+        """Returns named group, or the whole match if no named groups
+                are present on the match.
+        Args:
+            match: a re.Match object
+        Returns: content of the unique named group found at match,
+            the whole match if there are no groups at all or raise
+            an exception if there are more than two groups.
+        """
+        match = re.search(rule, act, flags=self._flags)
+        return match,
+
+
+
+    def _group_solver(self, match):
+        """Returns named group, or the whole match if no named groups
+                are present on the match.
+        Args:
+            match: a re.Match object
+        Returns: content of the unique named group found at match,
+            the whole match if there are no groups at all or raise
+            an exception if there are more than two groups.
+        """
+        if not match or type(match) == str:
+            return "nan"
+        elif match.groupdict():
+            key = list(match.groupdict())[0]
+            return match.group(key)
+        else:
+            return match.group()
+
+
+    def _acts_props(self):
+        acts = []
+        for raw in self._raw_acts:
+            act = self._act_props(raw)
+            acts.append(act)
+        if self._extra_search:
+            self._get_special_acts(acts)
+        return acts      
+
+
+    def _extract_instances(self) -> List[Match]:
+        found = self._find_instances()
+        self._acts_str = found.copy()
+        return found
+
+    def _build_dataframe(self):
+        _=re.search(self._name, self._name)
+        for dic in self._acts:
+            dic["tipo_ato"] = _
+        data = [ { k: self._group_solver(v) for k, v in act.items() } for act in self._acts]
+        return pd.DataFrame(data)
 
 
     def _post_process_raw(self):
@@ -116,135 +245,4 @@ class SemEfeitoAposentadoria:
             last_tornar_sem_efeito = single_spaces[single_spaces.rfind("TORNAR SEM EFEITO"):]
             l.append(last_tornar_sem_efeito)
         return l
-
-
-    def _run_property_extraction(self):
-        """Effectively extracts que information it was supposed to extract.
-        For more details check "TCDF_requisitos" for KnEDLe project.
-
-        Note:
-            WARNING: this function tends to be very extense.
-                Maybe a pipepilne-like approach would be better
-                but haven't figured how to do so (yet).
-        """
-        # DODF date usually is easily extracted.
-        tipo_lis = []
-        processo_lis = []
-        dodf_dates = []
-        dodf_num = []
-        tornado_sem_dates = []
-        pages = []
-        servidor_nome = []
-        servidor_matricula = []
-        cargo_efetivo_lis = []
-        edicoes = []
-        for tex in self._processed_text:
-            tipo = re.search(TIPO_DOCUMENTO, tex)
-            processo = re.search(PROCESSO_MATCH, tex)
-            dodf_date = re.search(DODF_DATE, tex)
-            num = dodf_date and re.search(DODF_NUM, dodf_date.group())         
-            published_date = dodf_date and \
-                re.search(FLEX_DATE, tex[:dodf_date.start()] + tex[dodf_date.end():])
-            page = dodf_date and re.search(PAGE, tex[dodf_date.end():][:50])
-            servidor = re.search(SERVIDOR_NOME_COMPLETO, tex)
-
-            if not servidor:
-                #  If it fails then a more generic regex is searched for
-                dodf_mt = re.search(DODF, tex)
-                dodf_end = 0 if not dodf_mt else dodf_mt.end()
-                servidor = re.search(NOME_COMPLETO, tex[dodf_end:])
-                del dodf_mt, dodf_end
-                if not servidor:
-                    # Appeal to spacy
-                    all_cands = re.findall(NOME_COMPLETO, tex)
-                    cand_text = 'SEM-SERVIDOR'
-                    for cand in self.nlp(', '.join([c.strip().title() for c in all_cands])).ents:
-                        cand_text = cand.text                
-                        if cand.label_ == 'PER':
-                            break
-                    servidor =  re.search(cand_text.upper(), tex)
-                    del all_cands, cand_text, cand
-            end_employee = servidor.end() if servidor else 0
-            matricula = re.search(MATRICULA, tex[end_employee:]) or \
-                        re.search(MATRICULA_GENERICO, tex[end_employee:]) or \
-                        re.search(MATRICULA_ENTRE_VIRGULAS, tex[end_employee:] ) 
-            del end_employee
-
-            if not matricula or not servidor:
-                cargo = None
-            else:
-                servidor_start = tex[servidor.start():].find(servidor.group()) + servidor.start()
-                matricula_start = tex[matricula.start():].find(matricula.group()) + matricula.start()
-
-                # NOTE: -1 is important in case `matricula` end with `,`
-                if 0 <= (matricula_start - (servidor_start + len(servidor.group()))) <= 5:
-                    # cargo does not fit between 'servidor' e 'matricula'
-                    cargo = re.search(r",(?P<cargo>[^,]+)", tex[ matricula_start + len(matricula.group())-1: ])        
-                else:
-                    # cargo right after employee's name                    
-                    cargo = re.search(r",(?P<cargo>[^,]+)", tex[servidor_start + len(servidor.group())-1:])
-                del matricula_start, servidor_start
-            edicao = re.search(DODF_TIPO_EDICAO, tex)
-            edicao = re.search(TIPO_EDICAO, tex[edicao.start()-1:edicao.end()+1]) if edicao \
-                        else re.search("normal", "normal")
-
-            tipo_lis.append(tipo)
-            processo_lis.append(processo)
-            dodf_dates.append(dodf_date)            
-            dodf_num.append(num)
-            tornado_sem_dates.append(published_date)
-            pages.append(page)
-            servidor_nome.append(servidor)
-            servidor_matricula.append(matricula)
-            cargo_efetivo_lis.append(cargo)
-            edicoes.append(edicao)
-
-        l = list(zip(
-            tipo_lis,
-            processo_lis,
-            dodf_dates,
-            dodf_num,
-            tornado_sem_dates,
-            pages,
-            servidor_nome,
-            servidor_matricula,
-            cargo_efetivo_lis,
-            edicoes
-        ))
-        if len(l) != len(self._processed_text):
-            raise Exception("Processed matches and list of attributes differ! {} vs {}".format(
-                len(self._processed_text), len(l)
-            ))
-        return l
-
-
-    def _build_dataframe(self):
-        def by_group_name(match):
-            if match:
-                keys = list(match.groupdict().keys())
-                if len(keys) == 0:
-                    return match.group()
-                elif len(keys) > 1:
-                    raise ValueError("Named regex must have AT MOST ONE NAMED GROUP.")
-                if self._debug:
-                    print('key: ', keys[0])
-                return match.group(keys[0])
-            else:
-                return "nan"
-        return pd.DataFrame(
-            data=map(lambda lis: [by_group_name(i) for i in lis],self._final_matches),
-            columns=[
-                'tipo',
-                'processo',
-                'dodf_data',
-                'dodf_num',
-                'tse_data',
-                'pag',
-                'nome',
-                'matricula',
-                'cargo_efetivo',
-                'tipo_edicao'
-            ]
-        )
-    
 

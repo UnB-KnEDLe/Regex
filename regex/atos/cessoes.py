@@ -18,7 +18,7 @@ def case_insensitive(s: str):
 
 
 def remove_crossed_words(s: str):
-    """Any hífen followed by 1+ spaces are removed.
+    """Any hyfen followed by 1+ spaces are removed.
     """
     return re.sub(r'-\s+', '', s)
 
@@ -53,7 +53,7 @@ class Cessoes(Atos):
     _special_acts = ['matricula', 'cargo']
     def __init__(self, file, debug=False, extra_search = True):
         self._debug = debug
-        self._extra_search = True
+        self._extra_search = extra_search
         self._processed_text = remove_crossed_words(open(file).read())
         self._raw_matches = []
         super().__init__(file)
