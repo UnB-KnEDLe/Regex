@@ -1,0 +1,495 @@
+Este documento pode ser verificado no endereco eletronico http://www.in.g o v. b r / a u t e n t i c i d a d e . h t m l ,
+pelo codigo 50102020020600001
+Documento assinado digitalmente conforme MP no 2.200-2 de 24/08/2001, que institui a
+Infraestrutura de Chaves Publicas Brasileira - ICP-Brasil. ANO XLVIX EDICAO EXTRA No- 12
+BRASILIA - DF, QUINTA-FEIRA, 6 DE FEVEREIRO DE 2020 SECAO I PODER EXECUTIVO DECRETO No 40.447, DE 06 DE FEVEREIRO DE 2020
+Altera o Decreto no 39.211, de 5 de julho de 2018, que dispoe sobre o Portal de Compras do Distrito
+Federal no ambito do Programa de Gestao de Compras Governamentais (COMPRASDF), e os
+sistemas corporativos de suporte ao ciclo de compras publicas, bem como a alteracao do Decreto no
+25.955, de 21 de julho de 2005.
+O GOVERNADOR DO DISTRITO FEDERAL, no uso das atribuicoes que lhe sao conferidas pelo
+artigo 100, incisos VII e XXVI, da Lei Organica do Distrito Federal, pelos artigos 115 e 118 da Lei
+n 8.666, de 21 de junho de 1993, e consoante estrutura organica capitulada no Decreto Distrital no
+39.610, de 1o de janeiro de 2019, DECRETA:
+Art. 1o O Decreto no 39.211, de 5 de julho de 2018, passa a vigorar com as seguintes alteracoes:
+"Art. 4o O Sistema de Gestao de Compras Governamentais (e-Compras/DF) e o Sistema de Gestao
+de Suprimentos (e-Supri/DF) serao de uso obrigatorio para orgaos e entidades da administracao direta
+e indireta do Distrito Federal, bem como para a Defensoria Publica do Distrito Federal, que utilizam
+o Sistema Integrado de Gestao Governamental (SIGGo), a partir de suas implementacoes.
+1o Ficam excluidas do caput deste artigo as Sociedades de Economia Mista, quais sejam:
+I - Banco de Brasilia S/A - BRB;
+II - Companhia Energetica de Brasilia - CEB;
+III - Companhia de Saneamento Ambiental do Distrito Federal - CAESB;
+IV - Centrais de Abastecimento do Distrito Federal S.A. - CEASA;
+V - DF Gestao de Ativos S.A." (NR)
+"Art. 4o-A O Sistema de Gestao de Contratos (e-Contratos/DF) e de uso obrigatorio para orgaos e
+entidades da administracao direta e indireta do Distrito Federal, bem como para a Defensoria Publica
+do Distrito Federal, que utilizam o Sistema Integrado de Gestao Governamental (SIGGo).
+1o Ficam excluidas do caput deste artigo as Sociedades de Economia Mista, quais sejam:
+I - Banco de Brasilia S/A - BRB;
+II - Companhia Energetica de Brasilia - CEB;
+III - Companhia de Saneamento Ambiental do Distrito Federal - CAESB;
+IV - Centrais de Abastecimento do Distrito Federal S.A. - CEASA;
+V - DF Gestao de Ativos S.A."
+2o Os orgaos e entidades da administracao publica direta e indireta do Distrito Federal deverao
+cadastrar seus contratos administrativos, bem como os respectivos termos aditivos, apostilamentos e
+termos de rescisao, no e-Contratos/DF ate 28 de fevereiro de 2020." (NR)
+"Art. 9o A Secretaria de Estado de Economia do Distrito Federal deve expedir normas complementares
+quanto ao disposto no presente Decreto, em especial, sobre a operacionalizacao dos sistemas
+instituidos e o momento de implementacao da obrigatoriedade de substituicao dos sistemas atuais."
+(NR)
+"Art. 9o-A O e-Contratos/DF contempla os seguintes modulos: cadastramento, administracao e
+encerramento dos contratos, de forma integrada com o SIGGo." (NR)
+"Art. 9o-B O pagamento dos contratos no SIGGo esta condicionado ao cadastramento e atualizacao do
+instrumento contratual no e-Contratos/DF." (NR)
+"Art. 9o-C As autoridades dos orgaos e entidades previstas no artigo 4o-A, que nao utilizarem o
+Sistema e-Contratos/DF, estao sujeitas as sancoes dispostas na Lei Complementar no 840, de 23 de
+dezembro de 2011." (NR)
+"Art. 9o-D A Secretaria de Estado de Economia do Distrito Federal deve disponibilizar o modulo de
+faturamento do e-Contratos/DF ate 31 de marco de 2020." (NR)
+"Art. 9o-E E competencia da Controladoria-Geral do Distrito Federal fiscalizar a utilizacao do e-
+Contratos/DF pelos orgaos e entidades da Administracao direta e indireta do Distrito Federal."
+(NR)
+Art. 2o Este Decreto entra em vigor na data de sua publicacao.
+Brasilia, 06 de fevereiro de 2020
+132o da Republica e 60o de Brasilia
+IBANEIS ROCHA PORTARIA No 27 DE 05 DE FEVEREIRO DE 2020
+O SECRETARIO DE ESTADO DE ECONOMIA DO DISTRITO FEDERAL, no uso da atribuicao que lhe
+confere o art. 323, XV, do Regimento Interno, aprovado pelo Decreto no 39.386, de 17 de outubro de 2018, e
+tendo em vista a autorizacao contida no art. 8 da Lei 6.482, de 09 de janeiro de 2020, e o que consta dos
+processos nos 00002-00000202/2020-57, 00002-00007817/2019-71, 00307-00000058/2020-89, 080-
+00000009524/2020-20, 0391-002356/2016, 060-0000034514/2020-04, e 060-00000047307/2020-11, resolve:
+Art. 1o Alterar o Quadro de Detalhamento de Despesa de diversas unidades orcamentarias, aprovado pelo
+Decreto no 39.652, de 05 de fevereiro de 2019, conforme anexos I, II, III e IV.
+Art. 2o Esta Portaria entra em vigor na data de sua publicacao.
+Art. 3o Ficam revogadas as disposicoes em contrario.
+ANDRE CLEMENTE LARA DE OLIVEIRA DECRETO No 40.448, DE 06 DE FEVEREIRO DE 2020
+Transforma a unidade que especifica e da outras providencias.
+O GOVERNADOR DO DISTRITO FEDERAL, no uso das atribuicoes que lhe confere o artigo 100,
+incisos VII e XXVI, da Lei Organica do Distrito Federal e o artigo 3o, inciso III, da Lei no 2.299, de
+janeiro de 1999, e nos termos do processo SEI n 00010-00000309/2020-14, DEC R E TA :
+Art. 1o Fica transformada a Chefia Executiva de Assuntos Legislativos, da Chefia de Gabinete, do Gabinete
+do Governador em Secretaria de Estado de Relacoes Parlamentares do Distrito Federal, mantidas suas
+competencias e atribuicoes legais.
+Art. 2o As Unidades Administrativas, os Cargos de Natureza Especial e em Comissao relacionados no
+Anexo I ficam transformados nas Unidades Administrativas, no Cargo de Natureza Politica e nos Cargos
+de Natureza Especial e em Comissao relacionados no Anexo II.
+Art. 3o Para compensacao financeira com a transformacao de cargos de que trata este Decreto, sera
+utilizado recursos do Banco de Saldo de Cargos em Comissao e Funcoes de Confianca administrado pela
+Secretaria de Estado de Economia do Distrito Federal, conforme art. 51, do Decreto n 39.610, de 1o de
+janeiro de 2019.
+Art. 4o As atividades relativas ao apoio operacional, administrativo, orcamentario e financeiro da Secretaria
+de Estado de Relacoes Parlamentares do Distrito Federal serao desempenhadas pela Casa Civil do Distrito
+Federal.
+Art. 5o Compete a Casa Civil do Distrito Federal, antes da posse ou da entrada em exercicio relativa aos
+cargos de natureza especial e em comissao a que se refere este ato, zelar pela apresentacao previa dos
+documentos exigidos no art. 3o do Decreto no 39.738, de 28 de marco de 2019, bem como da declaracao
+firmada pelo servidor quanto a inexistencia de nepotismo, nos termos do art. 37 da Constituicao Federal,
+dos paragrafos 9o e 10 do art. 19 da Lei Organica do Distrito Federal, art. 16 da Lei Complementar no 840,
+de 23 de dezembro de 2011, e do art. 5o do Decreto no 32.751, de 04 de fevereiro de 2011.
+Art. 6o Este Decreto entra em vigor na data de sua publicacao.
+Brasilia, 06 de fevereiro de 2020
+132o da Republica e 60o de Brasilia
+IBANEIS ROCHA ANEXO I
+UNIDADES ADMINISTRATIVAS, CARGOS DE NATUREZA ESPECIAL E EM COMISSAO
+(Art. 2o do Decreto no 40.448, de 06 de fevereiro de 2020)
+ORGAO/UNIDADE  ADMINISTRATIVA/CARGO/SIMBOLO/QUANTIDADE -  GABINETE DO
+GOVERNADOR - CHEFIA DE GABIENTE - CHEFIA EXECUTIVA DE ASSUNTOS LEGISLATIVOS
+- Chefe Executivo, CNE-01, 01 (codigo SIGRH 10000880); Subchefe Executivo, CNE-02, 01 (codigo
+SIGRH 10000881); Assessor Especial, CNE-03, 01 (codigo SIGRH 10001065); Assessor Especial, CNE-
+04, 01 (codigo SIGRH 10000883); Assessor Especial, CNE-06, 01 (codigo SIGRH 10000884); Assessor
+Especial, CNE-07, 05 (codigo SIGRH 10000885, 10000886, 10001066, 10001067 e 10001068); Assessor,
+DFA-15, 04 (codigo SIGRH 10001069, 10001070, 10001071, 10001072); Assessor, DFA-14, 04 (codigo
+SIGRH 10000887, 10001073, 10001074 e 10001075). ANEXO II
+UNIDADES ADMINISTRATIVAS, CARGOS DE NATUREZA ESPECIAL E EM COMISSAO
+(Art. 2o do Decreto no 40.448, de 06 de fevereiro de 2020)
+ORGAO/UNIDADE ADMINISTRATIVA/CARGO/SIMBOLO/QUANTIDADE - SECRETARIA DE
+ESTADO DE RELACOES PARLAMENTARES DO DISTRITO FEDERAL - Secretario de Estado, CNP-
+03, 01 - ASSESSORIA ESPECIAL - Chefe, CNE-03, 01; Assessor Especial, CNE-04, 01; Assessor
+Especial, CNE-05, 01; Assessor Especial, CNE-06, 02; Assessor Especial, CNE-07, 04; Assessor, DFA-16,
+01; Assessor, DFA-15, 03; Assessor, DFA-14, 04. SECRETARIA DE ESTADO DE ECONOMIA PAGINA 2
+No 12, quinta-feira, 6 de fevereiro de 2020 Este documento pode ser verificado no endereco eletronico http://www.in.g o v. b r / a u t e n t i c i d a d e . h t m l ,
+pelo codigo 50102020020600002
+Documento assinado digitalmente conforme MP no 2.200-2 de 24/08/2001, que institui a
+Infraestrutura de Chaves Publicas Brasileira - ICP-Brasil. Diario Oficial do Distrito Federal - Edicao Extra IBANEIS ROCHA
+Governador
+MARCUS VINICIUS BRITTO
+Vice-Governador
+VALDETARIO ANDRADE MONTEIRO
+Secretario de Estado Chefe da Casa Civil
+RAIAN
+RAIANA DO EGITO MOURA
+Subsecretaria de Atos Oficiais 
+ANTONIO DE PADUA CANAVIEIRA 
+Subsecretario de Tecnologia da Informacao ANEXO I ALTERACAO DE QDD REDUCAO RECURSOS DE TODAS AS FONTES R$ 1,00 ORCAMENTO  FISCAL DESPESA ESPECIFICACAO
+NATUREZA
+FONTE DETALHADO TOTAL
+REG
+IDUSO 090101/00001
+09101 CASA CIVIL DO DISTRITO  FEDERAL 43.007 28.846.0001.9050
+RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES DE PESSOAL Ref. 019025
+7101
+RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES--DISTRITO 
+FEDERAL 99 31.90.96 100 42.499 0 42.499 28.846.0001.9093
+OUTROS RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES Ref. 019027
+0034
+OUTROS RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES--DISTRITO 
+FEDERAL 99 33.90.93 100 508 0 508 190129/00001
+09129 ADMINISTRACAO  REGIONAL DO JARDIM 
+BOTANICO - RA XXVII 1.000 28.846.0001.9050
+RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES DE PESSOAL Ref. 018186
+0061
+RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES-
+ADMINISTRACAO 
+REGIONAL- JARDIM 
+BOTANICO 27 31.90.96 100 1.000 0 1.000 160101/00001
+18101 SECRETARIA DE ESTADO DE   EDUCACAO DO DISTRITO 
+FEDERAL 50.000.000 12.361.6221.2389
+MANUTENCAO DO ENSINO 
+FUNDAMENTAL Ref. 001422
+0001 MANUTENCAO DO ENSINO 
+FUNDAMENTAL-REDE 
+PUBLICA - SE-DISTRITO 
+FEDERAL 99 33.90.37 103 30.000.000 0 30.000.000 12.361.6221.4976
+TRANSPORTE DE ALUNOS Ref. 001397
+0002
+TRANSPORTE DE ALUNOS-
+ENSINO FUNDAMENTAL - 
+SE-DISTRITO FEDERAL 99 33.90.39 103 20.000.000 0 20.000.000 TOTAL
+2020AC00022
+50.044.007 ANEXO II ALTERACAO DE QDD REDUCAO RECURSOS DE TODAS AS FONTES R$ 1,00 ORCAMENTO  SEGURIDADE SOCIAL DESPESA ESPECIFICACAO
+NATUREZA
+FONTE DETALHADO TOTAL
+REG
+IDUSO 170901/17901
+23901 FUNDO DE SAUDE DO  DISTRITO FEDERAL 32.587.763 10.122.8202.8517
+MANUTENCAO DE 
+SERVICOS 
+ADMINISTRATIVOS GERAIS Ref. 019409
+0052
+MANUTENCAO DE 
+SERVICOS 
+ADMINISTRATIVOS 
+GERAIS-SES-DISTRITO 
+FEDERAL UNIDADE MANTIDA 
+(UNIDADE) 0 99 33.90.39 100 5.000 0 5.000 10.302.6202.2145 SERVICOS ASSISTENCIAIS 
+COMPLEMENTARES EM 
+SAUDE Ref. 004533
+2549
+SERVICOS ASSISTENCIAIS 
+COMPLEMENTARES EM 
+SAUDE-SES-DISTRITO 
+FEDERAL PROCEDIMENTO 
+MEDICO REALIZADO 
+(UNIDADE) 0 99 33.90.39 138 3.801.018 0 3.801.018 10.302.6202.2899
+CONTRATUALIZACAO DO 
+SERVICO SOCIAL 
+AUTONOMO Ref. 014132
+0001
+CONTRATUALIZACAO DO 
+SERVICO SOCIAL 
+AUTONOMO-INSTITUTO 
+HOSPITAL DE BASE DO 
+DISTRITO FEDERAL - 
+IHBDF- PLANO PILOTO . UNIDADE GERIDA 
+(UNIDADE) 0 1 33.90.39 100 15.534.000 0 15.534.000 10.302.6202.4206
+EXECUCAO DE CONTRATOS 
+DE GESTAO Ref. 000671
+0001
+EXECUCAO DE 
+CONTRATOS DE GESTAO-
+AMBUL. ESPECIALIZADAS 
+E HOSPITALARES - SES-
+DISTRITO FEDERAL 99 33.90.39 100 3.608.000 0 99 33.90.39 138 9.639.745 0 13.247.745 TOTAL
+2020AC00022
+32.587.763 No 12, quinta-feira, 6 de fevereiro de 2020
+PAGINA 3 Este documento pode ser verificado no endereco eletronico http://www.in.g o v. b r / a u t e n t i c i d a d e . h t m l ,
+pelo codigo 50102020020600003
+Documento assinado digitalmente conforme MP no 2.200-2 de 24/08/2001, que institui a
+Infraestrutura de Chaves Publicas Brasileira - ICP-Brasil. Diario Oficial do Distrito Federal - Edicao Extra ANEXO III ALTERACAO DE QDD ACRESCIMO RECURSOS DE TODAS AS FONTES R$ 1,00 ORCAMENTO  FISCAL DESPESA ESPECIFICACAO
+NATUREZA
+FONTE DETALHADO TOTAL
+REG
+IDUSO 090101/00001
+09101 CASA CIVIL DO DISTRITO  FEDERAL 43.007 28.846.0001.9050
+RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES DE PESSOAL Ref. 019025
+7101
+RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES--DISTRITO 
+FEDERAL 99 31.90.92 100 42.499 0 42.499 28.846.0001.9093
+OUTROS RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES Ref. 019027
+0034
+OUTROS RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES--DISTRITO 
+FEDERAL 99 33.90.92 100 508 0 508 190129/00001
+09129 ADMINISTRACAO  REGIONAL DO JARDIM 
+BOTANICO - RA XXVII 1.000 28.846.0001.9050
+RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES DE PESSOAL Ref. 018186
+0061
+RESSARCIMENTOS, 
+INDENIZACOES E 
+RESTITUICOES-
+ADMINISTRACAO 
+REGIONAL- JARDIM 
+BOTANICO 27 31.91.92 100 1.000 0 1.000 160101/00001
+18101 SECRETARIA DE ESTADO DE   EDUCACAO DO DISTRITO 
+FEDERAL 50.000.000 12.361.6221.2389
+MANUTENCAO DO ENSINO 
+FUNDAMENTAL Ref. 001422
+0001 MANUTENCAO DO ENSINO 
+FUNDAMENTAL-REDE 
+PUBLICA - SE-DISTRITO 
+FEDERAL 99 33.90.92 103 30.000.000 0 30.000.000 12.361.6221.4976
+TRANSPORTE DE ALUNOS Ref. 001397
+0002
+TRANSPORTE DE ALUNOS-
+ENSINO FUNDAMENTAL - 
+SE-DISTRITO FEDERAL 99 33.90.92 103 20.000.000 0 20.000.000 TOTAL
+2020AC00022
+50.044.007 ANEXO IV ALTERACAO DE QDD ACRESCIMO RECURSOS DE TODAS AS FONTES R$ 1,00 ORCAMENTO  SEGURIDADE SOCIAL DESPESA ESPECIFICACAO
+NATUREZA
+FONTE DETALHADO TOTAL
+REG
+IDUSO 170901/17901
+23901 FUNDO DE SAUDE DO  DISTRITO FEDERAL 32.587.763 10.122.8202.8517
+MANUTENCAO DE 
+SERVICOS 
+ADMINISTRATIVOS GERAIS Ref. 019409
+0052
+MANUTENCAO DE 
+SERVICOS 
+ADMINISTRATIVOS 
+GERAIS-SES-DISTRITO 
+FEDERAL UNIDADE MANTIDA 
+(UNIDADE) 0 99 33.91.39 100 5.000 0 5.000 10.302.6202.2145 SERVICOS ASSISTENCIAIS 
+COMPLEMENTARES EM 
+SAUDE Ref. 004533
+2549
+SERVICOS ASSISTENCIAIS 
+COMPLEMENTARES EM 
+SAUDE-SES-DISTRITO 
+FEDERAL PROCEDIMENTO 
+MEDICO REALIZADO 
+(UNIDADE) 0 99 33.90.92 138 3.801.018 0 3.801.018 10.302.6202.2899
+CONTRATUALIZACAO DO 
+SERVICO SOCIAL 
+AUTONOMO Ref. 014132
+0001
+CONTRATUALIZACAO DO 
+SERVICO SOCIAL 
+AUTONOMO-INSTITUTO 
+HOSPITAL DE BASE DO 
+DISTRITO FEDERAL - 
+IHBDF- PLANO PILOTO . UNIDADE GERIDA 
+(UNIDADE) 0 1 33.50.39 100 15.534.000 0 15.534.000 10.302.6202.4206
+EXECUCAO DE CONTRATOS 
+DE GESTAO Ref. 000671
+0001
+EXECUCAO DE 
+CONTRATOS DE GESTAO-
+AMBUL. ESPECIALIZADAS 
+E HOSPITALARES - SES-
+DISTRITO FEDERAL 99 33.50.39 100 3.608.000 0 99 33.50.39 138 9.639.745 0 13.247.745 TOTAL
+2020AC00022
+32.587.763 SECAO II PODER EXECUTIVO DECRETO DE 06 DE FEVEREIRO DE 2020
+O GOVERNADOR DO DISTRITO FEDERAL, no uso das atribuicoes que lhe confere o artigo 100, incisos
+XXVI e XXVII, da Lei Organica do Distrito Federal, resolve:
+EXONERAR, a pedido, RAPHAELA SANTOS VIEIRA do Cargo de Natureza Especial, Simbolo CNE-01,
+de Chefe de Gabinete Executivo, da Chefia de Gabinete Executiva, da Chefia de Gabinete, do Gabinete do
+G o v e r n a d o r.
+NOMEAR KAMYLA SILVA TEIXEIRA para exercer o Cargo de Natureza Especial, Simbolo CNE-01, de
+Chefe de Gabinete Executivo, da Chefia de Gabinete Executiva, da Chefia de Gabinete, do Gabinete do
+G o v e r n a d o r.
+EXONERAR, por estar sendo nomeada para outro cargo, KAMYLA SILVA TEIXEIRA do Cargo de
+Natureza Especial, Simbolo CNE-02, de Subchefe, da Subchefia de Informacao, da Chefia de Gabinete
+Executiva, da Chefia de Gabinete, do Gabinete do Governador.
+NOMEAR CAMILA BEATRIZ DA SILVA OLIVEIRA para exercer o Cargo de Natureza Especial, Simbolo
+CNE-02, de Subchefe, da Subchefia de Informacao, da Chefia de Gabinete Executiva, da Chefia de Gabinete,
+do Gabinete do Governador.
+EXONERAR, por estar sendo nomeada para outro cargo, CAMILA BEATRIZ DA SILVA OLIVEIRA do
+Cargo de Natureza Especial, Simbolo CNE-03, de Assessor Especial, da Subchefia de Informacao, da Chefia
+de Gabinete Executiva, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, a pedido, ANA CRISTINA PEREIRA VALLE do Cargo de Natureza Especial, Simbolo CNE-
+03, de Assessor Especial, da Subchefia de Informacao, da Chefia de Gabinete Executiva, da Chefia de
+Gabinete, do Gabinete do Governador.
+NOMEAR ISADORA SANTIAGO PEREIRA MAURICIO para exercer o Cargo de Natureza Especial,
+Simbolo CNE-06, de Assessor Especial, da Chefia de Gabinete, do Gabinete do G o v e r n a d o r.
+EXONERAR, por estar sendo nomeado para outro cargo, RENATO ANDRADE DOS SANTOS, matricula
+1.689.926-1, do Cargo de Natureza Especial, Simbolo CNE-01, de Chefe Executivo, da Chefia Executiva de
+Assuntos Legislativos, da Chefia de Gabinete, do Gabinete do Governador. PAGINA 4
+No 12, quinta-feira, 6 de fevereiro de 2020 Este documento pode ser verificado no endereco eletronico http://www.in.g o v. b r / a u t e n t i c i d a d e . h t m l ,
+pelo codigo 50102020020600004
+Documento assinado digitalmente conforme MP no 2.200-2 de 24/08/2001, que institui a
+Infraestrutura de Chaves Publicas Brasileira - ICP-Brasil. Diario Oficial do Distrito Federal - Edicao Extra EXONERAR, por estar sendo nomeado para outro cargo, DIONISIO MARTINS DE MELO, matricula
+1.690.193-2, do Cargo de Natureza Especial, Simbolo CNE-02, de Subchefe, da Chefia Executiva de Assuntos
+Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeada para outro cargo, CHARLENY ALARCAO ARAUJO, matricula
+1.691.353-1, do Cargo de Natureza Especial, Simbolo CNE-03, de Assessor Especial, da Chefia Executiva de
+Assuntos Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeada para outro cargo, MAELY MOURA BARROS HENRIQUE,
+matricula 0.260.237-7, do Cargo de Natureza Especial, Simbolo CNE-04, de Assessor Especial, da Chefia
+Executiva de Assuntos Legislativos, da Chefia de Gabinete, do Gabinete do Go v e r n a d o r.
+EXONERAR, por estar sendo nomeado para outro cargo, CLAUDIO LIMA FARIAS, matricula 1.690.235-1,
+do Cargo de Natureza Especial, Simbolo CNE-06, de Assessor Especial, da Chefia Executiva de Assuntos
+Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeado para outro cargo, FELIPE NASCIMENTO DE ANDRADE,
+matricula 1.690.185-1, do Cargo de Natureza Especial, Simbolo CNE-07, de Assessor Especial, da Chefia
+Executiva de Assuntos Legislativos, da Chefia de Gabinete, do Gabinete do Go v e r n a d o r.
+EXONERAR, por estar sendo nomeado para outro cargo, SAMIR FERREIRA DA ROCHA, matricula
+1.691.175-X, do Cargo de Natureza Especial, Simbolo CNE-07, de Assessor Especial, da Chefia Executiva de
+Assuntos Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeada para outro cargo, TALITA SANTANA BESERRA, matricula
+1.690.257-2, do Cargo de Natureza Especial, Simbolo CNE-07, de Assessor Especial, da Chefia Executiva de
+Assuntos Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeado para outro cargo, MARCOS RAFAEL DE ARAUJO VIEIRA,
+matricula 1.691.174-1, do Cargo de Natureza Especial, Simbolo CNE-07, de Assessor Especial, da Chefia
+Executiva de Assuntos Legislativos, da Chefia de Gabinete, do Gabinete do Go v e r n a d o r.
+EXONERAR, por estar sendo nomeada para outro cargo, GYANI DA ROCHA BOTTI, matricula 1.691.170-
+9, do Cargo de Natureza Especial, Simbolo CNE-07, de Assessor Especial, da Chefia Executiva de Assuntos
+Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeado para outro cargo, JORGE EDUARDO DE BARROS matricula
+1.691.178-4, do Cargo em Comissao, Simbolo DFA-15, de Assessor, da Chefia Executiva de Assuntos
+Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeada para outro cargo, KELLY ALMEIDA FALCAO DOS SANTOS
+matricula 1.691.159-8, do Cargo em Comissao, Simbolo DFA-15, de Assessor, da Chefia Executiva de
+Assuntos Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeada para outro cargo, ILMA ANTONIA CORREIA DOS REIS, matricula
+1.691.179-2, do Cargo em Comissao, Simbolo DFA-15, de Assessor, da Chefia Executiva de Assuntos
+Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeado para outro cargo, DAVID RODRIGUES DOS SANTOS PENA,
+matricula 1.691.157-1, do Cargo em Comissao, Simbolo DFA-15, de Assessor, da Chefia Executiva de
+Assuntos Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeado para outro cargo, MARCIO XAVIER DO NASCIMENTO, matricula
+1.691.156-3, do Cargo em Comissao, Simbolo DFA-14, de Assessor, da Chefia Executiva de Assuntos
+Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeado para outro cargo, JOSIVALDO SOARES DE QUEIROZ, matricula
+1.693.632-9, do Cargo em Comissao, Simbolo DFA-14, de Assessor, da Chefia Executiva de Assuntos
+Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeada para outro cargo, MARIA JOSE DA SILVA FERREIRA, matricula
+1.692.543-2, do Cargo em Comissao, Simbolo DFA-14, de Assessor, da Chefia Executiva de Assuntos
+Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+EXONERAR, por estar sendo nomeado para outro cargo, KENNEDY ROBERTO DOS SANTOS, matricula
+1.693.672-8, do Cargo em Comissao, Simbolo DFA-14, de Assessor, da Chefia Executiva de Assuntos
+Legislativos, da Chefia de Gabinete, do Gabinete do Governador.
+NOMEAR RENATO ANDRADE DOS SANTOS para exercer o Cargo de Natureza Politica, Simbolo CNP-
+03, de Secretario de Estado, da Secretaria de Estado de Relacoes Parlamentares do Distrito Federal.
+NOMEAR DIONISIO MARTINS DE MELO para exercer o Cargo de Natureza Especial, Simbolo CNE-03,
+de Chefe, da Assessoria Especial, da Secretaria de Relacoes Parlamentares do Distrito Federal.
+NOMEAR CHARLENY ALARCAO ARAUJO, matricula 1.691.353-1, para exercer o Cargo de Natureza
+Especial, Simbolo CNE-04, de Assessor Especial, da Assessoria Especial, da Secretaria de Estado de Relacoes
+Parlamentares do Distrito Federal.
+NOMEAR MAELY MOURA BARROS HENRIQUE para exercer o Cargo de Natureza Especial, Simbolo
+CNE-05, de Assessor, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito
+Federal.
+NOMEAR CLAUDIO LIMA FARIAS para exercer o Cargo de Natureza Especial, Simbolo CNE-06, de
+Assessor Especial, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito
+Federal.
+NOMEAR FELIPE NASCIMENTO DE ANDRADE para exercer o Cargo de Natureza Especial, Simbolo
+CNE-06, de Assessor Especial, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do
+Distrito Federal.
+NOMEAR SAMIR FERREIRA DA ROCHA para exercer o Cargo de Natureza Especial, Simbolo CNE-07,
+de Assessor Especial, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito
+Federal.
+NOMEAR TALITA SANTANA BESERRA para exercer o Cargo de Natureza Especial, Simbolo CNE-07, de
+Assessor Especial, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito
+Federal.
+NOMEAR MARCOS RAFAEL DE ARAUJO VIEIRA, matricula 1.691.174-1, para exercer o Cargo de
+Natureza Especial, Simbolo CNE-07, de Assessor Especial, da Assessoria Especial, da Secretaria de Estado de
+Relacoes Parlamentares do Distrito Federal.
+NOMEAR GYANE DA ROCHA BOTTI para exercer o Cargo de Natureza Especial, Simbolo CNE-07, de
+Assessor Especial, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito
+Federal.
+NOMEAR JORGE EDUARDO DE BARROS, matricula 1.691.178-4, para exercer o Cargo em Comissao,
+Simbolo DFA-16, de Assessor, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do
+Distrito Federal.
+NOMEAR KELLY ALMEIDA FALCAO DOS SANTOS para exercer o Cargo em Comissao, Simbolo DFA-
+15, de Assessor, da Assessoria Especial, da Assessoria Especial, da Secretaria de Estado de Relacoes
+Parlamentares do Distrito Federal.
+NOMEAR ILMA ANTONIA CORREIA DOS REIS para exercer o Cargo em Comissao, Simbolo DFA-15,
+de Assessor, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito Federal.
+NOMEAR DAVID RODRIGUES DOS SANTOS PENA para exercer o Cargo em Comissao, Simbolo DFA-
+15, de Assessor, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito
+Federal.
+NOMEAR MARCIO XAVIER DO NASCIMENTO para exercer o Cargo em Comissao, Simbolo DFA-14, de
+Assessor, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito Federal.
+NOMEAR JOSIVALDO SOARES DE QUEIROZ para exercer o Cargo em Comissao, Simbolo DFA-14, de
+Assessor, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito Federal.
+NOMEAR MARIA JOSE DA SILVA FERREIRA para exercer o Cargo em Comissao, Simbolo DFA-14, de
+Assessor, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito Federal.
+NOMEAR KENNEDY ROBERTO DOS SANTOS para exercer o Cargo em Comissao, Simbolo DFA-14, de
+Assessor, da Assessoria Especial, da Secretaria de Estado de Relacoes Parlamentares do Distrito Federal.
+IBANEIS ROCHA SECAO III SECRETARIA DE ESTADO DE
+DESENVOLVIMENTO ECONOMICO COMPANHIA IMOBILIARIA DE BRASILIA
+AGENCIA DE DESENVOLVIMENTO DO DISTRITO FEDERAL E D I TA L
+9o OFICIO DE REGISTRO DE IMOVEIS DO DISTRITO FEDERAL
+ANDREIA CONCEICAO MORAIS DE AMORIM, Oficial em exercicio do 9o Oficio de Registro de
+Imoveis do Distrito Federal, situado na Quadra 12, Lote 8, Setor Tradicional, Brazlandia-DF, nos termos
+do art. 19, caput, da Lei federal no 6.766/79, FAZ SABER aos que virem o presente EDITAL, ou dele
+tomarem conhecimento, que COMPANHIA IMOBILIARIA DE BRASILIA, TERRACAP, CNPJ n.o
+00.359.877/0001-73, com sede em Brasilia, DF, depositou nesta Serventia, nos termos do art. 18 da Lei
+federal no 6.766/79, o memorial do LOTEAMENTO urbano denominado "Expansao da Vila Sao Jose,
+Brazlandia, DF", com definicao de 3.858 unidades imobiliarias, situado na Expansao da Vila Sao Jose,
+Brazlandia, DF, dentro do perimetro de uma area urbana da Fazenda Chapadinha, Brazlandia, DF, objeto
+da matricula no 4.857 desta Serventia. A area a ser loteada, totaliza 163,9636 hectares, e encontra-se dentro
+dos seguintes limites: Partindo do vertice P1 de coordenadas N=8.266.956,5183 e E=156.697,8807, segue
+com o azimute 95o09'12" e distancia de 1.043,534 metros ate o vertice P2 de coordenadas
+N=8.266.862,6996 e E=157.738,1344; dai, segue com o azimute 185o51'21" e distancia de 150,011 metros
+ate o vertice P3 de coordenadas N=8.266.713,3364 e E=157.722,8159; dai, segue com o azimute 95o51'21"
+e distancia de 188,382 metros ate o vertice P4 de coordenadas N=8.266.694,0997 e E=157.910,3840; dai,
+segue com o azimute 185o50'38" e distancia de 190,777 metros ate o vertice P5 de coordenadas
+N=8.266.504,1434 e E=157.890,9415; dai, segue com o azimute 95o13'37" e distancia de 159,651 metros
+ate o vertice P6 de coordenadas N=8.266.489,5858 e E=158.050,0718; dai, segue com o azimute
+185o36'16" e distancia de 310,003 metros ate o vertice P7 de coordenadas N=8.266.180,7861 e
+E=158.019,7695; dai, segue com o azimute 95o43'36" e distancia de 390,211 metros ate o vertice P8 de
+coordenadas N=8.266.141,8153 e E=158.408,3835; dai, segue com o azimute 185o50'21" e distancia de
+796,190 metros ate o vertice P9 de coordenadas N=8.265.349,0413 e E=158.327,3090; dai, segue com o
+azimute 275o10'27" e distancia de 685,412 metros ate o vertice P10 de coordenadas N=8.265.410,9084 e
+E=157.644,0733; dai, segue com o azimute 5o11'31" e distancia de 246,168 metros ate o vertice P11 de
+coordenadas N=8.265.656,2879 e E=157.666,3698; dai, segue com o azimute 95o11'31" e distancia de
+34,998 metros ate o vertice P12 de coordenadas N=8.265.653,1180 e E=157.701,2559; dai, segue com o
+azimute 5o11'31" e distancia de 99,995 metros ate o vertice P13 de coordenadas N=8.265.752,7931 e
+E=157.710,3128; dai, segue com o azimute 275o11'31" e distancia de 34,998 metros ate o vertice P14 de
+coordenadas N=8.265.755,9631 e E=157.675,4268; dai, segue com o azimute 5o11'30" e distancia de
+158,994 metros ate o vertice P15 de coordenadas N=8.265.914,4474 e E=157.689,8267; dai, segue com o
+azimute 275o11'31" e distancia de 207,993 metros ate o vertice P16 de coordenadas N=8.265.933,2863 e
+E=157.482,5004; dai, segue com o azimute 5o11'33" e distancia de 54,998 metros ate o vertice P17 de
+coordenadas N=8.265.988,1078 e E=157.487,4822; dai, segue com o azimute 275o11'31" e distancia de
+524,980 metros ate o vertice P18 de coordenadas N=8.266.035,6582 e E=156.964,1845; dai, segue com o
+azimute 5o11'26" e distancia de 16,499 metros ate o vertice P19 de coordenadas N=8.266.052,1042 e
+E=156.965,6785; dai, segue com o azimute 275o11'11" e distancia de 58,998 metros ate o vertice P20 de
+coordenadas N=8.266.057,4422 e E=156.906,8694; dai, segue com o azimute 185o11'53" e distancia de
+16,493 metros ate o vertice P21 de coordenadas N=8.266.041,0023 e E=156.905,3738; dai, segue com o
+azimute 275o11'12" e distancia de 266,714 metros ate o vertice P22 de coordenadas N=8.266.065,1350 e
+E=156.639,5118; dai, segue com o azimute 5o02'39" e distancia de 5,101 metros ate o vertice P23 de
+coordenadas N=8.266.070,2209 e E=156.639,9607; dai, segue com o azimute 275o18'11" e distancia de
+21,122 metros ate o vertice P24 de coordenadas N=8.266.072,1748 e E=156.618,9100; dai, segue com o
+azimute 5o06'10" e distancia de 887,062 metros ate o vertice P1 de coordenadas N=8.266.956,5183 e
+E=156.697,8807, onde iniciou esta descricao. AREA: 163,9636 ha (Area calculada pelo AutoCAD =
+1639636.45 m2). Este memorial descritivo teve como referencia a caracterizacao do MDE 173/2017. As
+coordenadas sao UTM/SICAD, Datum Horizontal SIRGAS2000, o Meridiano Central de 45oW, as
+distancias sao topograficas, tendo sido utilizado o Kr=1,0009025. Ficam os documentos do citado
+memorial a disposicao dos interessados. Aqueles que se sentirem prejudicados pelo registro do loteamento
+poderao impugna-lo fundamentadamente no prazo de quinze dias, contado da terceira e ultima publicacao
+deste edital, ao qual foi anexado desenho de localizacao da area. Findo o referido prazo sem impugnacoes,
+sera feito imediatamente o registro. Dado e passado nesta Capital em 04 de fevereiro de 2020.
+ANDREIA CONCEICAO MORAIS DE AMORIM   
