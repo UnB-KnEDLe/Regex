@@ -20,11 +20,11 @@ class Exoneracao(Atos):
     
     def _prop_rules(self):
         rules = {"nome": r"([A-ZÀ-Ž\s]+[A-ZÀ-Ž])",
-                "matricula": r"matr[í|i]cula\s?n?o?\s([\s\S]*?)[,|\s]",
+                "matricula":"matricula\s?n?o?\s([\s\S]*?-[\s\S]*?)[,]",
                 "simbolo": r"[S|s][í|i]mbolo\s?n?o?\s([\s\S]*?)[,|\s]",
-                "cargo_comissao": "",
-                "lotacao": "",
-                "orgao": "",
+                "cargo_comissao": "(?:Cargo|Carreira)\sde([\s\S]*?)\,",
+                "lotacao": r"(?:[S|s][í|i]mbolo\s?n?o?\s(?:[\s\S]*?)[,|\s])\sde(?:[\s\S]*?),\sd[a|e|o]\s([\s\S]*,?),",
+                "orgao": r"(?:[S|s][í|i]mbolo\s?n?o?\s(?:[\s\S]*?)[,|\s])\sde(?:[\s\S]*?),\sd[a|e|o]\s(?:[\s\S]*,?),\sd[a|e|o]\s([\s\S]*?)$",
                 "vigencia": "",
                 "pedido": r"(a pedido)",
                 "cargo_efetivo": "",
